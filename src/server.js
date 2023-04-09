@@ -7,6 +7,3 @@ server.listen(PORT_SOCKET, (e) =>
     `[SERVER-SOCKET] => Server listing on http://localhost:${PORT_SOCKET}`
   )
 );
-app.listen(PORT_SERVER, (e) =>
-  console.log(`[SERVER] => Server listing on http://localhost:${PORT_SERVER}`)
-);

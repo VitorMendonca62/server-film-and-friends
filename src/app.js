@@ -6,7 +6,7 @@ const server = http.createServer(app);
 
 const io = require('socket.io')(server, {
   cors: {
-    origin: 'http://127.0.0.1:5173',
+    origin: 'https://client-film-and-friends.vercel.app',
     methods: ['GET', 'POST'],
   },
 });
@@ -36,28 +36,4 @@ io.on('connection', (socket) => {
   });
 });
 
-const livekitApi = require('livekit-server-sdk');
-const { AccessToken, RoomServiceClient } = livekitApi;
-
-const API_KEY = 'APIVKGDTnWrocvt';
-const SECRET_KEY = 'ugdFVAvWGrDmp0rfex1fvp4KVNBuFqJgrqG9lW1G77vB';
-
-const roomName = 'filme';
-
-app.get('/token/:username', (req, res) => {
-  const participandName = req.params.username;
-  const at = new AccessToken(API_KEY, SECRET_KEY, {
-    identity: participandName,
-  });
-  at.addGrant({
-    roomJoin: true,
-    room: roomName,
-    canPublish: false,
-    canSubscribe: true,
-  });
-  const token = at.toJwt();
-
-  return res.json({ token });
-});
-
-module.exports = { server, app };
+module.exports = { server };
