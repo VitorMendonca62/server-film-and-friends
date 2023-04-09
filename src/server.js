@@ -1,8 +1,12 @@
-const { server } = require('./app.js');
-const PORT = 4004;
+const { server, app } = require('./app.js');
+const PORT_SOCKET = 4004;
+const PORT_SERVER = 4003;
 
-const listener = server.listen(PORT, (e) => {
-  console.log(listener.address().address)
-  console.log(`[SERVER] => Server listing on http://localhost:${PORT}`)
-}
+server.listen(PORT_SOCKET, (e) =>
+  console.log(
+    `[SERVER-SOCKET] => Server listing on http://localhost:${PORT_SOCKET}`
+  )
+);
+app.listen(PORT_SERVER, (e) =>
+  console.log(`[SERVER] => Server listing on http://localhost:${PORT_SERVER}`)
 );

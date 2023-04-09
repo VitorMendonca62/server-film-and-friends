@@ -15,7 +15,8 @@ const users = [];
 const messages = [];
 let stateVideo = {};
 
-
+const cors = require('cors');
+app.use(cors());
 
 io.on('connection', (socket) => {
   console.log(`[SOCKET] => A user connected: ${socket.id}`);
@@ -35,4 +36,28 @@ io.on('connection', (socket) => {
   });
 });
 
-module.exports = { server };
+const livekitApi = require('livekit-server-sdk');
+const { AccessToken, RoomServiceClient } = livekitApi;
+
+const API_KEY = 'APIVKGDTnWrocvt';
+const SECRET_KEY = 'ugdFVAvWGrDmp0rfex1fvp4KVNBuFqJgrqG9lW1G77vB';
+
+const roomName = 'filme';
+
+app.get('/token/:username', (req, res) => {
+  const participandName = req.params.username;
+  const at = new AccessToken(API_KEY, SECRET_KEY, {
+    identity: participandName,
+  });
+  at.addGrant({
+    roomJoin: true,
+    room: roomName,
+    canPublish: false,
+    canSubscribe: true,
+  });
+  const token = at.toJwt();
+
+  return res.json({ token });
+});
+
+module.exports = { server, app };
