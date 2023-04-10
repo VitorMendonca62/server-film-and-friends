@@ -6,7 +6,7 @@ const server = http.createServer(app);
 
 const io = require('socket.io')(server, {
   cors: {
-    origin: 'https://client-film-and-friends.vercel.app',
+    origin: '*',
     methods: ['GET', 'POST'],
   },
 });
