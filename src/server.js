@@ -8,7 +8,5 @@ server.listen(PORT_SOCKET, () =>
   )
 );
 app.listen(PORT_SERVER, () => {
-  console.log(
-    `[SERVER-SOCKET] => Server listing on http://localhost:${PORT_SERVER}`
-  );
+  console.log(`[SERVER] => Server listing on http://localhost:${PORT_SERVER}`);
 });

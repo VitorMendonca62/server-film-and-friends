@@ -15,9 +15,6 @@ const users = [];
 const messages = [];
 let stateVideo = {};
 
-const cors = require('cors');
-app.use(cors());
-
 io.on('connection', (socket) => {
   console.log(`[SOCKET] => A user connected: ${socket.id}`);
   socket.on('select-name', (data) => {
