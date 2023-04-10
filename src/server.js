@@ -6,7 +6,7 @@ const express = require('express');
 const app = express();
 
 app.get('/', (req, res) => {
-  res.json({ pegou: true });
+  res.send('aa');
 });
 
 server.listen(PORT_SOCKET, () =>
