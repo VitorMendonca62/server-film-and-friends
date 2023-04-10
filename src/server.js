@@ -3,7 +3,11 @@ const PORT_SOCKET = 4004;
 const PORT_SERVER = 4003;
 
 const express = require('express');
-const app = express()
+const app = express();
+
+app.get('/', (req, res) => {
+  res.json({ pegou: true });
+});
 
 server.listen(PORT_SOCKET, () =>
   console.log(
@@ -11,7 +15,5 @@ server.listen(PORT_SOCKET, () =>
   )
 );
 app.listen(PORT_SERVER, () => {
-  console.log(
-    `[SERVER] => Server listing on http://localhost:${PORT_SERVER}`
-  );
+  console.log(`[SERVER] => Server listing on http://localhost:${PORT_SERVER}`);
 });
