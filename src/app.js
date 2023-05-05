@@ -7,7 +7,7 @@ app.use(cors());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-require('./database');
+require('./firebase');
 
 const routes = require('./routes');
 app.use(routes);

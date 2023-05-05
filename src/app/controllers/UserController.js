@@ -1,7 +1,7 @@
 const { v4 } = require('uuid');
 const bcrypt = require('bcryptjs');
 const Yup = require('yup');
-const User = require('../models/User');
+
 
 const { admin, usersRef } = require('../../firebase');
 
@@ -125,7 +125,6 @@ module.exports = {
       name,
       username,
       email,
-      password,
       password_hash,
       role,
     });
