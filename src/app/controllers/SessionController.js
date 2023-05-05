@@ -2,28 +2,34 @@ const User = require('../models/User');
 const authConfig = require('../../config/auth');
 const jwt = require('jsonwebtoken');
 const Yup = require('yup');
+const bcrypt = require('bcryptjs');
+
+const { admin, usersRef } = require('../../firebase');
+
+function verifyPassword(password,password_hash) {
+  return bcrypt.compare(password, password_hash);
+}
 
 module.exports = {
   async store(req, res) {
     const { email, password } = req.body;
 
-    const user = await User.findOne({ where: { email } });
+    const snapshot = await usersRef.where('email', '==', email)?.get();
 
-    if (!user) {
-      return res
-        .status(200)
-        .json({
-          msg: 'Usuário não encontrado. Tente se cadastrar',
-          error: true,
-        });
+    if (snapshot.empty) {
+      return res.status(200).json({
+        msg: 'Usuário não encontrado. Tente se cadastrar',
+        error: true,
+      });
     }
+    const user = snapshot.docs[0].data();
 
     const loginSchema = Yup.object().shape({
       email: Yup.string()
         .email('Email inválido')
         .required('Email é obrigatório'),
       password: Yup.string().required('Senha é obrigatória').min(6),
-    });   
+    });
 
     try {
       loginSchema.validateSync(req.body, { abortEarly: false });
@@ -31,7 +37,7 @@ module.exports = {
       return res.status(200).json({ erro: err.errors });
     }
 
-    const passwordIsRight = await user.verifyPassword(password);
+    const passwordIsRight = verifyPassword(password,user.password_hash);
 
     if (user && passwordIsRight) {
       const token = jwt.sign(
@@ -58,12 +64,10 @@ module.exports = {
     }
 
     if (!user || !passwordIsRight) {
-      return res
-        .status(200)
-        .json({
-          msg: 'Usuário ou senha estão incorretos. Tente novamenete',
-          error: true,
-        });
+      return res.status(200).json({
+        msg: 'Usuário ou senha estão incorretos. Tente novamenete',
+        error: true,
+      });
     }
   },
 };

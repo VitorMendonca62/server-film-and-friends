@@ -1,27 +1,23 @@
 const users = [];
 const messages = [];
-let stateVideo = {};
 
 function initSocket(io) {
   io.on('connection', (socket) => {
     console.log(`[SOCKET] => A user connected: ${socket.id}`);
-    socket.on('disconnect', (reason) => {
+
+    socket.on('disconnect', () => {
       console.log(`[SOCKET] => A user disconnected: ${socket.id}`);
     });
 
-    socket.on('select-name', (data) => {
-      users.push(data);
-    });
+    socket.on('join-room', (roomiD, userId, username) => {
+      socket.join('roomiD');
 
-    socket.on('sendMessage', (data) => {
-      messages.push(data);
-      io.emit('receivedMessage', data);
-    });
+      console.log('ENTROU NA SALA'); // VEM 2 VEZES
+      socket.on('send-message', (message) => {
+        console.log('MANDOU'); // VEM 2 VEZES
 
-    socket.on('stateVideo', (data) => {
-      stateVideo = { isPaused: data.isPaused };
-      console.log(data);
-      io.emit('receivedStateVideo', data);
+        io.emit('received-message', message, username);
+      });
     });
   });
 }
