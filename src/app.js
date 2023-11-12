@@ -5,6 +5,9 @@ import rateLimit from 'express-rate-limit';
 
 // Componentes
 import routes from './routes.js';
+import { startDatabase } from './database/index.js';
+
+startDatabase();
 
 // Iniciando express
 const app = express();
