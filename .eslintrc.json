@@ -11,6 +11,7 @@
   "rules": {
     "linebreak-style": ["error", "windows"],
     "import/extensions": ["error", "ignorePackages"],
-    "no-console":"off"
+    "no-console": "off",
+    "camelcase": ["error", { "allow": ["_id", "snake_case"] }]
   }
 }

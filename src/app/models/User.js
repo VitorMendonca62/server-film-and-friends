@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 /* eslint-disable no-param-reassign */
 /* eslint-disable import/no-extraneous-dependencies */
 
@@ -11,9 +12,9 @@ class User extends Model {
         name: DataTypes.STRING,
         username: DataTypes.STRING,
         email: DataTypes.STRING,
+        role: DataTypes.STRING,
         password: DataTypes.VIRTUAL,
         password_hash: DataTypes.STRING,
-        role: DataTypes.STRING,
       },
       { sequelize },
     );

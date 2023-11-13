@@ -2,6 +2,9 @@
 import { Sequelize } from 'sequelize';
 import configDatabase from '../config/database.js';
 
+// Models
+import User from '../app/models/User.js';
+
 // Conexão
 export const connection = new Sequelize(configDatabase);
 
@@ -13,11 +16,9 @@ export function startDatabase() {
     console.log('[DATABASE] Database connection was interrupted:', err);
   }
 
-  // Models
+  // Conectar Models
 
-  // import  from "../app/models/"
+  const models = [User];
 
-  // const models = []
-
-  // models.forEach(model => model.init(connection));
+  models.forEach((model) => model.init(connection));
 }
