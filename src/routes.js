@@ -16,5 +16,6 @@ routes.get('/users', UserController.index);
 routes.use(auth);
 routes.get('/users/find', UserController.show);
 routes.delete('/users/:id', UserController.delete);
+routes.patch('/users/:id', UserController.update);
 
 export default routes;

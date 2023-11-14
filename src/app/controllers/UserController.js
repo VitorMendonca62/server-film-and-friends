@@ -154,7 +154,7 @@ export default {
   },
 
   async delete(req, res) {
-    const { id } = req.body;
+    const { id } = req.params;
     try {
       const token = req.headers.authorization.split(' ')[1];
       const decodedToken = jwtDecode(token);
@@ -178,6 +178,75 @@ export default {
       return res
         .status(200)
         .json({ error: false, msg: 'Usuário deletado com sucesso!' });
+    } catch (error) {
+      return res.status(500).json({
+        msg: 'Algo de errado com o servidor! Tente novamente!',
+        error: true,
+        data: error,
+      });
+    }
+  },
+
+  async update(req, res) {
+    const { id } = req.params;
+    const { name, username } = req.body;
+
+    const userSchema = Yup.object().shape({
+      name: Yup.string().max(50, 'Nome muito longo').min(8, 'Nome muito cuito'),
+      username: Yup.string()
+        .max(50, 'Apelido muito longo')
+        .min(4, 'Apelido muito cuito'),
+    });
+
+    try {
+      userSchema.validateSync(req.body, { abortEarly: false });
+    } catch (err) {
+      return res.status(400).json({
+        msg: err.errors[0],
+        error: true,
+        type: err.inner[0].path,
+      });
+    }
+
+    try {
+      const token = req.headers.authorization.split(' ')[1];
+      const decodedToken = jwtDecode(token);
+      const user = await User.findOne({ where: { id: decodedToken.id } });
+      const user_id = user?.id;
+
+      if (!user) {
+        return res.status(404).json({
+          msg: 'Usuário não encontrado no sistema.',
+          error: true,
+        });
+      }
+      if (id !== user_id) {
+        return res.status(400).json({
+          msg: 'Algo deu errado!',
+          error: true,
+        });
+      }
+
+      const isUserWithUsername = await User.findOne({
+        where: {
+          username: user.username === username ? '' : username,
+        },
+      });
+      if (isUserWithUsername) {
+        return res.status(400).json({
+          msg: 'Apelido já cadastrado, tente utilizar outro apelido!',
+          error: true,
+        });
+      }
+
+      user.update({
+        name: name || user.name,
+        username: username || user.username,
+      });
+
+      return res
+        .status(200)
+        .json({ error: false, msg: 'Usuário atualizado com sucesso!' });
     } catch (error) {
       return res.status(500).json({
         msg: 'Algo de errado com o servidor! Tente novamente!',
