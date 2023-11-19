@@ -178,7 +178,7 @@ export default {
 
       const passwordIsCorrect = await user.verifyPassword(
         password,
-        user.password_hash,
+        user.password_hash
       );
       if (!passwordIsCorrect) {
         return res.status(400).json({
@@ -189,11 +189,7 @@ export default {
 
       updatePass(res, user, newPassword);
     } catch (error) {
-      return res.status(500).json({
-        msg: 'Algo de errado com o servidor! Tente novamente!',
-        error: true,
-        data: error,
-      });
+      return errorInServer(res, error);
     }
   },
 };
