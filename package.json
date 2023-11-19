@@ -20,6 +20,8 @@
     "jsonwebtoken": "^9.0.2",
     "jwt-decode": "^4.0.0",
     "mysql2": "^3.6.3",
+    "nanoid": "^5.0.3",
+    "nodemailer": "^6.9.7",
     "sequelize": "^6.35.0",
     "sequelize-cli": "^6.6.2",
     "uuid": "^9.0.1",

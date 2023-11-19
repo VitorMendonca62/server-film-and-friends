@@ -3,30 +3,34 @@
 /* eslint-disable object-curly-newline */
 // Modulos
 import Yup from 'yup';
-import bcrypt from 'bcryptjs';
-import { jwtDecode } from 'jwt-decode';
 import { Op } from 'sequelize';
 import { v4 } from 'uuid';
 
 // Models
 import User from '../models/User.js';
 
+// Utils
+import {
+  IDBodyNotUserID,
+  errorInServer,
+  foundEmail,
+  foundUserByToken,
+  foundUsername,
+  notFoundUser,
+  verifySchema,
+} from '../../utils/user.js';
+
 export default {
   async index(req, res) {
     try {
       const users = await User.findAll();
-
       return res.status(200).json({
         msg: 'Aqui estão todos nossos usuários!',
         error: false,
         data: users,
       });
     } catch (error) {
-      return res.status(500).json({
-        msg: 'Algo de errado com o servidor! Tente novamente!',
-        error: true,
-        data: error,
-      });
+      return errorInServer(res, error);
     }
   },
 
@@ -45,12 +49,8 @@ export default {
         },
       });
 
-      if (!user) {
-        return res.status(404).json({
-          msg: 'Usuário não encontrado no sistema.',
-          error: true,
-        });
-      }
+      if (notFoundUser(res, user)) return;
+
       return res.status(201).json({
         msg: 'Usuário encontrado com sucesso!',
         data: {
@@ -60,11 +60,7 @@ export default {
         error: false,
       });
     } catch (error) {
-      return res.status(500).json({
-        msg: 'Algo de errado com o servidor. Tente novamente!',
-        error: true,
-        data: error,
-      });
+      return errorInServer(res, error);
     }
   },
 
@@ -86,50 +82,20 @@ export default {
         .min(6, 'A senha é curta demais!'),
     });
 
-    try {
-      userSchema.validateSync(req.body, { abortEarly: false });
-    } catch (err) {
-      return res.status(400).json({
-        msg: err.errors[0],
-        error: true,
-        type: err.inner[0].path,
-      });
-    }
+    if (verifySchema(req, res, userSchema)) return;
+
     try {
       const { name, password, username, email, password_hash } = req.body;
 
-      const role = { name: 'admin' };
+      const role = { name: '' };
 
       if (req.headers.authorization) {
-        const token = req.headers.authorization.split(' ')[1];
-        const decodedToken = jwtDecode(token);
-        const user = await User.findOne({ where: { id: decodedToken.id } });
+        const user = await foundUserByToken(req);
         role.name = user?.role === 'admin' ? 'admin' : 'user';
       } else role.name = 'user';
 
-      const isUserWithEmail = await User.findOne({
-        where: {
-          email,
-        },
-      });
-      const isUserWithUsername = await User.findOne({
-        where: {
-          username,
-        },
-      });
-
-      if (isUserWithUsername) {
-        return res.status(400).json({
-          msg: 'Apelido já cadastrado, tente utilizar outro apelido!',
-          error: true,
-        });
-      }
-      if (isUserWithEmail) {
-        return res.status(400).json({
-          msg: 'Usuário já cadastrado, tente fazer login!',
-          error: true,
-        });
-      }
+      if (await foundUsername(res, username)) return;
+      if (await foundEmail(res, email)) return;
 
       await User.create({
         id: v4(),
@@ -146,45 +112,25 @@ export default {
         error: false,
       });
     } catch (error) {
-      return res.status(500).json({
-        msg: 'Algo de errado com o servidor. Tente novamente!',
-        error: true,
-        data: error,
-      });
+      return errorInServer(res, error);
     }
   },
 
   async delete(req, res) {
     const { id } = req.params;
     try {
-      const token = req.headers.authorization.split(' ')[1];
-      const decodedToken = jwtDecode(token);
-      const user = await User.findOne({ where: { id: decodedToken.id } });
+      const user = await foundUserByToken(req);
       const user_id = user?.id;
 
-      if (!user) {
-        return res.status(404).json({
-          msg: 'Usuário não encontrado no sistema.',
-          error: true,
-        });
-      }
-      if (id !== user_id) {
-        return res.status(400).json({
-          msg: 'Algo deu errado!',
-          error: true,
-        });
-      }
+      if (notFoundUser(res, user)) return;
+      if (IDBodyNotUserID(res, id, user_id)) return;
 
       user.destroy();
       return res
         .status(200)
         .json({ error: false, msg: 'Usuário deletado com sucesso!' });
     } catch (error) {
-      return res.status(500).json({
-        msg: 'Algo de errado com o servidor! Tente novamente!',
-        error: true,
-        data: error,
-      });
+      return errorInServer(res, error);
     }
   },
 
@@ -199,34 +145,14 @@ export default {
         .min(4, 'Apelido muito cuito'),
     });
 
-    try {
-      userSchema.validateSync(req.body, { abortEarly: false });
-    } catch (err) {
-      return res.status(400).json({
-        msg: err.errors[0],
-        error: true,
-        type: err.inner[0].path,
-      });
-    }
+    if (verifySchema(req, res, userSchema)) return;
 
     try {
-      const token = req.headers.authorization.split(' ')[1];
-      const decodedToken = jwtDecode(token);
-      const user = await User.findOne({ where: { id: decodedToken.id } });
+      const user = await foundUserByToken(req);
       const user_id = user?.id;
 
-      if (!user) {
-        return res.status(404).json({
-          msg: 'Usuário não encontrado no sistema.',
-          error: true,
-        });
-      }
-      if (id !== user_id) {
-        return res.status(400).json({
-          msg: 'Algo deu errado!',
-          error: true,
-        });
-      }
+      if (notFoundUser(res, user)) return;
+      if (IDBodyNotUserID(res, id, user_id)) return;
 
       const isUserWithUsername = await User.findOne({
         where: {
@@ -249,75 +175,7 @@ export default {
         .status(200)
         .json({ error: false, msg: 'Usuário atualizado com sucesso!' });
     } catch (error) {
-      return res.status(500).json({
-        msg: 'Algo de errado com o servidor! Tente novamente!',
-        error: true,
-        data: error,
-      });
-    }
-  },
-  async updatePassword(req, res) {
-    const { id } = req.params;
-    const { password, newPassword } = req.body;
-
-    const userSchema = Yup.object().shape({
-      password: Yup.string()
-        .required('Senha antiga é obrigatória')
-        .min(8, 'A senha antiga é curta demais!'),
-      newPassword: Yup.string()
-        .required('Senha nova é obrigatória')
-        .min(8, 'A senha nova é curta demais!'),
-    });
-
-    try {
-      userSchema.validateSync(req.body, { abortEarly: false });
-    } catch (err) {
-      return res.status(400).json({
-        msg: err.errors[0],
-        error: true,
-        type: err.inner[0].path,
-      });
-    }
-
-    try {
-      const token = req.headers.authorization.split(' ')[1];
-      const decodedToken = jwtDecode(token);
-      const user = await User.findOne({ where: { id: decodedToken.id } });
-      const user_id = user?.id;
-
-      if (!user) {
-        return res.status(404).json({
-          msg: 'Usuário não encontrado no sistema.',
-          error: true,
-        });
-      }
-      if (id !== user_id) {
-        return res.status(400).json({
-          msg: 'Algo deu errado!',
-          error: true,
-        });
-      }
-      const passwordIsCorrect = await user.verifyPassword(
-        password,
-        user.password_hash
-      );
-      if (!passwordIsCorrect) {
-        return res.status(400).json({
-          msg: 'A senha antiga está incorreta!',
-          error: true,
-        });
-      }
-      const newPasswordHash = await bcrypt.hash(newPassword, 10);
-      user.update({ password_hash: newPasswordHash });
-      return res
-        .status(200)
-        .json({ error: false, msg: 'Usuário atualizado com sucesso!' });
-    } catch (error) {
-      return res.status(500).json({
-        msg: 'Algo de errado com o servidor! Tente novamente!',
-        error: true,
-        data: error,
-      });
+      return errorInServer(res, error);
     }
   },
 };
