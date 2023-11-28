@@ -112,13 +112,10 @@ export default {
         users_acess[email] = false;
       }, 50000);
 
-      if (!users_acess[email]) {
-        return res.status(400).json({
-          msg: 'Tempo para redefinir a senha expirou, tente novamente!',
-          data: {},
-          error: true,
-        });
-      }
+      console.log(users_acess_code);
+      console.log(users_acess);
+      delete users_acess_code[email];
+      console.log(users_acess_code);
       return res.status(200).json({
         msg: 'Código correto!',
         data: {},
@@ -142,13 +139,22 @@ export default {
     });
 
     if (verifySchema(req, res, userSchema)) return;
+
     try {
-      const user = await User.findOne({ where: { email } });
+      if (users_acess[email]) {
+        const user = await User.findOne({ where: { email } });
 
-      if (notFoundUser(res, user)) return;
+        if (notFoundUser(res, user)) return;
 
-      updatePass(res, user, newPassword);
-      users_acess[email] = false;
+        updatePass(res, user, newPassword);
+        delete users_acess[email];
+      } else {
+        return res.status(400).json({
+          msg: 'Tempo para redefinir a senha expirou, tente novamente!',
+          data: {},
+          error: true,
+        });
+      }
     } catch (error) {
       return errorInServer(res, error);
     }

@@ -21,6 +21,6 @@ routes.patch('/users/:id', UserController.update);
 routes.post('/users/password/email', PassController.sendEmailForgotPass);
 routes.post('/users/password/code', PassController.verifyCodeForgotPass);
 routes.patch('/users/password/forgot', PassController.forgotPass);
-routes.patch('/users/password/', PassController.updatePassword);
+routes.patch('/users/password/:id', PassController.updatePassword);
 
 export default routes;
