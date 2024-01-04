@@ -1,8 +1,7 @@
-/* eslint-disable no-console */
 import { config } from 'dotenv';
 import app from './app.js';
 
-// Conseguir pegar variaveis de ambiete
+// Take variables of environment
 config();
 
 // Config of server

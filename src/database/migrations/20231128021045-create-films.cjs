@@ -6,30 +6,55 @@
 
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('users', {
+    await queryInterface.createTable('films', {
       id: {
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,
         allowNull: false,
         primaryKey: true,
       },
-      name: {
+      id_api: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        primaryKey: true,
+      },
+      title: {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      username: {
+      release_date: {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      email: {
+      genres: {
+        type: Sequelize.JSON,
+        allowNull: false,
+      },
+      duration: {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      role: {
+      numbers_participants: {
+        type: Sequelize.INTEGER,
+        defaultValue: 0,
+      },
+      description: {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      password_hash: {
+      rating: {
+        type: Sequelize.STRING,
+        defaultValue: 0,
+      },
+      url_trailer: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      poster_path: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      background_path: {
         type: Sequelize.STRING,
         allowNull: false,
       },
@@ -45,6 +70,6 @@ module.exports = {
   },
 
   async down(queryInterface) {
-    await queryInterface.dropTable('users');
+    await queryInterface.dropTable('films');
   },
 };

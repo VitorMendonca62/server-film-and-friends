@@ -1,11 +1,14 @@
-/* eslint-disable import/no-extraneous-dependencies */
+// Modules
 import { Sequelize } from 'sequelize';
-import configDatabase from '../config/database.js';
 
 // Models
 import User from '../app/models/User.js';
+import Film from '../app/models/Film.js';
 
-// Conexão
+// Config
+import configDatabase from '../config/database.js';
+
+// Connection
 export const connection = new Sequelize(configDatabase);
 
 export function startDatabase() {
@@ -18,7 +21,7 @@ export function startDatabase() {
 
   // Conectar Models
 
-  const models = [User];
+  const models = [User, Film];
 
   models.forEach((model) => model.init(connection));
 }

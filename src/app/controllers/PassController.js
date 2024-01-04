@@ -1,12 +1,8 @@
 /* eslint-disable consistent-return */
-/* eslint-disable camelcase */
-/* eslint-disable object-curly-newline */
-// Modulos
+// Modules
 import Yup from 'yup';
 import bcrypt from 'bcryptjs';
 import { nanoid } from 'nanoid';
-import takeHTMLEmail from '../../../pages/email.js';
-import transporterEmail from '../../config/email.js';
 
 // Models
 import User from '../models/User.js';
@@ -18,12 +14,17 @@ import {
   IDBodyNotUserID,
 } from '../../utils/user.js';
 
-const users_acess_code = {};
-const users_acess = {};
+// Config
+import takeHTMLEmail from '../../../pages/email.js';
+import transporterEmail from '../../config/email.js';
+
+const usersAcessCode = {};
+const usersAcess = {};
 
 async function updatePass(res, user, newPassword) {
   try {
     const newPasswordHash = await bcrypt.hash(newPassword, 10);
+    // eslint-disable-next-line camelcase
     user.update({ password_hash: newPasswordHash });
 
     return res.status(200).json({
@@ -34,6 +35,7 @@ async function updatePass(res, user, newPassword) {
     return errorInServer(res, error);
   }
 }
+
 export default {
   async sendEmailForgotPass(req, res) {
     const emailSchema = Yup.object().shape({
@@ -53,14 +55,14 @@ export default {
 
       if (notFoundUser(res, user)) return;
 
-      const acess_code = nanoid(6);
+      const acessCode = nanoid(6);
       const { username } = user;
 
       const mailOptions = {
         from: 'no.reply.movie.and.friends@gmail.com',
         to: email,
         subject: 'Seu código de acesso para redefinir senha é...',
-        html: takeHTMLEmail(username, acess_code),
+        html: takeHTMLEmail(username, acessCode),
       };
 
       transporterEmail.sendMail(mailOptions, (err) => {
@@ -71,7 +73,7 @@ export default {
             data: err,
           });
         }
-        users_acess_code[email] = acess_code;
+        usersAcessCode[email] = acessCode;
 
         return res.status(200).json({
           msg: 'Em breve, você vai receber um e-mail para redefinir sua senha. Se não conseguir encontrar o e-mail, lembre-se de procurar na pasta de spam ou lixo eletrônico.',
@@ -80,7 +82,7 @@ export default {
         });
       });
     } catch (error) {
-      return errorInServer(res, error);
+      errorInServer(res, error);
     }
   },
 
@@ -99,7 +101,7 @@ export default {
     try {
       const { code, email } = req.body;
 
-      if (users_acess_code[email] !== code) {
+      if (usersAcessCode[email] !== code) {
         return res.status(400).json({
           msg: 'Código incorreto!',
           data: {},
@@ -107,15 +109,12 @@ export default {
         });
       }
 
-      users_acess[email] = true;
+      usersAcess[email] = true;
       setTimeout(() => {
-        users_acess[email] = false;
+        usersAcess[email] = false;
       }, 50000);
 
-      console.log(users_acess_code);
-      console.log(users_acess);
-      delete users_acess_code[email];
-      console.log(users_acess_code);
+      delete usersAcessCode[email];
       return res.status(200).json({
         msg: 'Código correto!',
         data: {},
@@ -141,13 +140,13 @@ export default {
     if (verifySchema(req, res, userSchema)) return;
 
     try {
-      if (users_acess[email]) {
+      if (usersAcess[email]) {
         const user = await User.findOne({ where: { email } });
 
         if (notFoundUser(res, user)) return;
 
         updatePass(res, user, newPassword);
-        delete users_acess[email];
+        delete usersAcess[email];
       } else {
         return res.status(400).json({
           msg: 'Tempo para redefinir a senha expirou, tente novamente!',
@@ -184,7 +183,7 @@ export default {
 
       const passwordIsCorrect = await user.verifyPassword(
         password,
-        user.password_hash
+        user.password_hash,
       );
       if (!passwordIsCorrect) {
         return res.status(400).json({

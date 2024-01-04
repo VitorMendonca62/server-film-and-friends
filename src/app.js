@@ -1,18 +1,18 @@
-// Modulos
+// Modules
 import express from 'express';
 import cors from 'cors';
 import rateLimit from 'express-rate-limit';
 
-// Componentes
+// Components
 import routes from './routes.js';
 import { startDatabase } from './database/index.js';
 
 startDatabase();
 
-// Iniciando express
+// Init express
 const app = express();
 
-// Aceitar json no body
+// Accept JSON
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 

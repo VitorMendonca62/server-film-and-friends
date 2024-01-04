@@ -1,6 +1,5 @@
-/* eslint-disable camelcase */
 /* eslint-disable no-param-reassign */
-/* eslint-disable import/no-extraneous-dependencies */
+/* eslint-disable camelcase */
 
 import { Model, DataTypes } from 'sequelize';
 import bcrypt from 'bcryptjs';

@@ -1,3 +1,4 @@
+// Modules
 import express from 'express';
 
 // Middlewares
@@ -7,14 +8,20 @@ import auth from './app/middlewares/auth.js';
 import UserController from './app/controllers/UserController.js';
 import SessionController from './app/controllers/SessionController.js';
 import PassController from './app/controllers/PassController.js';
+import FilmController from './app/controllers/FilmController.js';
 
 const routes = express.Router();
 
+// Routes:
 routes.post('/users', UserController.store);
 routes.post('/auth/login', SessionController.store);
 routes.get('/users', UserController.index);
 
+routes.post('/film', FilmController.store);
+routes.get('/film/:id', FilmController.show);
+routes.get('/film', FilmController.index);
 routes.use(auth);
+
 routes.get('/users/find', UserController.show);
 routes.delete('/users/:id', UserController.delete);
 routes.patch('/users/:id', UserController.update);

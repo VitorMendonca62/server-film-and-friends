@@ -1,6 +1,10 @@
+// Modules
 import { jwtDecode } from 'jwt-decode';
+
+// Models
 import User from '../app/models/User.js';
 
+// Check if the ID in req is the same as the user ID
 export function IDBodyNotUserID(res, id, user_id) {
   if (id !== user_id) {
     return res.status(400).json({
@@ -10,12 +14,16 @@ export function IDBodyNotUserID(res, id, user_id) {
   }
   return false;
 }
+
+// Take user by token in req
 export async function foundUserByToken(req) {
   const token = req.headers.authorization.split(' ')[1];
   const decodedToken = jwtDecode(token);
   const user = await User.findOne({ where: { id: decodedToken.id } });
   return user;
 }
+
+// Show not found user
 export function notFoundUser(res, user) {
   if (!user) {
     return res.status(404).json({
@@ -25,6 +33,8 @@ export function notFoundUser(res, user) {
   }
   return false;
 }
+
+// Found user bu username
 export async function foundUsername(res, username) {
   const isUserWithUsername = await User.findOne({
     where: {
@@ -39,6 +49,8 @@ export async function foundUsername(res, username) {
   }
   return false;
 }
+
+// Found user bu username by email
 export async function foundEmail(res, email) {
   const isUserWithEmail = await User.findOne({
     where: {
@@ -54,6 +66,8 @@ export async function foundEmail(res, email) {
   }
   return false;
 }
+
+// Show message of error in server
 export function errorInServer(res, error) {
   return res.status(500).json({
     msg: 'Algo de errado com o servidor! Tente novamente!',
@@ -61,10 +75,12 @@ export function errorInServer(res, error) {
     data: error.message,
   });
 }
-// eslint-disable-next-line consistent-return
+
+// Verify erro in req.body
 export function verifySchema(req, res, schema) {
   try {
     schema.validateSync(req.body, { abortEarly: false });
+    return false;
   } catch (err) {
     res.status(400).json({
       msg: err.errors[0],
