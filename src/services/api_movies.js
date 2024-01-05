@@ -45,12 +45,11 @@ export default async function fetchAPI(APIName, id, type) {
 
   if (data) {
     // Aqui ele pega a url do trailer e vai fazer uma nova requesiçao para conseguir achar
-    // const urlTrailer = `${host}/${type}/${id}/videos?language=pt-BR`;
-    // const responseTrailer = await fetch(url, urlTrailer);
-    // const dataTrailer = await responseTrailer.json();
-    // const keyTrailer = dataTrailer.results[0].key;
-    // const trailer = `https://www.youtube.com/watch?v=${keyTrailer}`;
-    const trailer = 'a';
+    const urlTrailer = `${host}/${type}/${id}/videos?language=pt-BR`;
+    const responseTrailer = await fetch(urlTrailer, options);
+    const dataTrailer = await responseTrailer.json();
+    const keyTrailer = dataTrailer.results[0].key;
+    const trailer = `https://www.youtube.com/watch?v=${keyTrailer}`;
 
     // eslint-disable-next-line object-curly-newline
     const { backdrop_path, title, poster_path, overview } = data;
@@ -96,6 +95,7 @@ export default async function fetchAPI(APIName, id, type) {
   }
   if (APIName === 'imdb') {
     // Sim, isso é uma gambiarra enorme. Mas é pra ter mais dados caso seja do IMDB
+    // E não tenha do TMDB, é apenas em ultimos casos.
     // Isso aqui deve ser o apice de ineficiencia, mas é o que temos para hoeje <(
 
     // NOTA: Eu não fiz isso, eu achei em um repositorio no github:
@@ -105,6 +105,7 @@ export default async function fetchAPI(APIName, id, type) {
       method: 'GET',
       headers: {
         accept: 'application/json',
+        'Accept-Language': 'pt-BR',
       },
     };
     const responseIMDB = await fetch(hostIMDB, optionsElse);
@@ -115,28 +116,40 @@ export default async function fetchAPI(APIName, id, type) {
       document.scripts.namedItem('__NEXT_DATA__').textContent,
     );
     const props = json.props.pageProps.aboveTheFoldData;
-
+    console.log(props);
     const title = props.titleText.text;
-    const { year } = props.releaseDate;
+    const { day, month, year } = props.releaseDate;
+    const release_date = `${year}-${month}-${day}`;
     const { genres } = props.titleGenres;
+    const nameGenres = genres.map((genre) => genre.genre.text);
     const description = props.plot.plotText.plainText;
-    const { seconds } = props.runtime;
-    const image = props.primaryImage.url;
-    const trailer = props.primaryVideos.edges[0].node.previewURLs[0].url;
-    const dataReturn = [
+    const url_trailer = props.primaryVideos.edges[0].node.playbackURLs[0].url;
+    const poster_path = props.primaryImage.url;
+    const background_path = 'undefined';
+
+    const dataReturn = {
       title,
-      year,
-      genres,
+      release_date,
+      genres: nameGenres,
       description,
-      seconds,
-      image,
-      trailer,
-    ];
+      url_trailer,
+      poster_path,
+      background_path,
+    };
+
+    if (type === 'movie') {
+      const { seconds } = props.runtime;
+      const duration = seconds / 60;
+      dataReturn.duration = duration;
+    }
+    if (type === 'tv') {
+      
+    }
 
     return {
       error: false,
       data: dataReturn,
-      msg: 'Obra encontado com sucesso no TMDB',
+      msg: 'Obra encontada com sucesso no IMDB',
       code: 200,
     };
   }
