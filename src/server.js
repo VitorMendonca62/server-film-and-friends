@@ -6,9 +6,7 @@ config();
 
 // Config of server
 const PORT = process.env.PORT || 4004;
-const HOST = process.env.HOST || 'localhost';
+const HOST = 'localhost';
 
 // Server listing
-app.listen(PORT, () =>
-  console.log(`[RUN] Server listing in http://${HOST}:${PORT}`),
-);
+app.listen(PORT, () => console.log(`[RUN] Server listing in http://${HOST}:${PORT}`));

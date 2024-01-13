@@ -5,6 +5,7 @@ import { v4 } from 'uuid';
 
 // Modules
 import Film from '../models/Film.js';
+import Serie from '../models/Serie.js';
 
 // APi
 import fetchAPIFilm from '../../services/api_movies.js';
@@ -27,10 +28,24 @@ export default {
           'poster_path',
         ],
       });
+      const series = await Serie.findAll({
+        attributes: [
+          'title',
+          'id',
+          'genres',
+          'release_date',
+          'seasons',
+          'season',
+          'episode',
+          'numbers_participants',
+          'rating',
+          'poster_path',
+        ],
+      });
       return res.status(200).json({
         msg: 'Aqui estão todas as obras!',
         error: false,
-        data: films,
+        data: [...series, ...films],
       });
     } catch (error) {
       return errorInServer(res, error);
@@ -39,13 +54,19 @@ export default {
   async show(req, res) {
     try {
       const { id } = req.params;
+      const { type } = req.body;
+      let data = {};
 
-      const film = await Film.findByPk(id);
+      if (type === 'movie') {
+        data = await Film.findByPk(id);
+      } else {
+        data = await Serie.findByPk(id);
+      }
 
       return res.status(200).json({
         msg: 'Aqui esta a obra!',
         error: false,
-        data: film,
+        data,
       });
     } catch (error) {
       return errorInServer(res, error);
@@ -69,11 +90,12 @@ export default {
       const film = await fetchAPIFilm(apiName, id, type);
 
       if (!film.error) {
-        await Film.create({
-          id: v4(),
-          id_api: id,
-          ...film.data,
-        });
+        const data = { id: v4(), id_api: id, ...film.data };
+        if (type === 'movie') {
+          await Film.create(data);
+        } else {
+          await Serie.create(data);
+        }
         film.code = 201;
       }
 

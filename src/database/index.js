@@ -4,6 +4,7 @@ import { Sequelize } from 'sequelize';
 // Models
 import User from '../app/models/User.js';
 import Film from '../app/models/Film.js';
+import Serie from '../app/models/Serie.js';
 
 // Config
 import configDatabase from '../config/database.js';
@@ -21,7 +22,7 @@ export function startDatabase() {
 
   // Conectar Models
 
-  const models = [User, Film];
+  const models = [User, Film, Serie];
 
   models.forEach((model) => model.init(connection));
 }

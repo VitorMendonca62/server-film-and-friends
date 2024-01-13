@@ -2,7 +2,7 @@
 
 import { Model, DataTypes } from 'sequelize';
 
-class Film extends Model {
+class Serie extends Model {
   static init(sequelize) {
     super.init(
       {
@@ -10,8 +10,10 @@ class Film extends Model {
         title: DataTypes.STRING,
         release_date: DataTypes.INTEGER,
         genres: DataTypes.JSON,
-        duration: DataTypes.STRING,
+        seasons: DataTypes.JSON,
         numbers_participants: DataTypes.INTEGER,
+        season: DataTypes.INTEGER,
+        episode: DataTypes.INTEGER,
         description: DataTypes.STRING,
         rating: DataTypes.STRING,
         url_trailer: DataTypes.STRING,
@@ -23,4 +25,4 @@ class Film extends Model {
   }
 }
 
-export default Film;
+export default Serie;

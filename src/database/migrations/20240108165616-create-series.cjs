@@ -6,7 +6,7 @@
 
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('films', {
+    await queryInterface.createTable('series', {
       id: {
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,
@@ -30,9 +30,17 @@ module.exports = {
         type: Sequelize.JSON,
         allowNull: false,
       },
-      duration: {
-        type: Sequelize.STRING,
+      seasons: {
+        type: Sequelize.JSON,
         allowNull: false,
+      },
+      season: {
+        type: Sequelize.INTEGER,
+        defaultValue: 1,
+      },
+      episode: {
+        type: Sequelize.INTEGER,
+        defaultValue: 1,
       },
       numbers_participants: {
         type: Sequelize.INTEGER,
@@ -70,6 +78,6 @@ module.exports = {
   },
 
   async down(queryInterface) {
-    await queryInterface.dropTable('films');
+    await queryInterface.dropTable('series');
   },
 };
