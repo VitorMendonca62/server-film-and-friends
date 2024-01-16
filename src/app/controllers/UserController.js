@@ -10,13 +10,14 @@ import { v4 } from 'uuid';
 import User from '../models/User.js';
 
 // Utils
+import { notFound } from '../../utils/general.js';
+
 import {
   IDBodyNotUserID,
   errorInServer,
   foundEmail,
   foundUserByToken,
   foundUsername,
-  notFoundUser,
   verifySchema,
 } from '../../utils/user.js';
 
@@ -49,7 +50,9 @@ export default {
         },
       });
 
-      if (notFoundUser(res, user)) return;
+      if (!user) {
+        return notFound(res, 'Usuário não encontrado');
+      }
 
       return res.status(201).json({
         msg: 'Usuário encontrado com sucesso!',
@@ -122,7 +125,9 @@ export default {
       const user = await foundUserByToken(req);
       const user_id = user?.id;
 
-      if (notFoundUser(res, user)) return;
+      if (!user) {
+        return notFound(res, 'Usuário não encontrado');
+      }
       if (IDBodyNotUserID(res, id, user_id)) return;
 
       user.destroy();
@@ -151,7 +156,9 @@ export default {
       const user = await foundUserByToken(req);
       const user_id = user?.id;
 
-      if (notFoundUser(res, user)) return;
+      if (!user) {
+        return notFound(res, 'Usuário não encontrado');
+      }
       if (IDBodyNotUserID(res, id, user_id)) return;
 
       const isUserWithUsername = await User.findOne({

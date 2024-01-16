@@ -8,7 +8,7 @@ import Film from '../models/Film.js';
 import Serie from '../models/Serie.js';
 
 // APi
-import fetchAPIFilm from '../../services/api_movies.js';
+import fetchAPIFilm from '../../services/media/api_movies.js';
 
 // Utils
 import { errorInServer, verifySchema } from '../../utils/user.js';

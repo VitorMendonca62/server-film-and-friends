@@ -23,17 +23,6 @@ export async function foundUserByToken(req) {
   return user;
 }
 
-// Show not found user
-export function notFoundUser(res, user) {
-  if (!user) {
-    return res.status(404).json({
-      msg: 'Usuário não encontrado no sistema.',
-      error: true,
-    });
-  }
-  return false;
-}
-
 // Found user bu username
 export async function foundUsername(res, username) {
   const isUserWithUsername = await User.findOne({

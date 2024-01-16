@@ -6,9 +6,11 @@ import { nanoid } from 'nanoid';
 
 // Models
 import User from '../models/User.js';
+
+import { notFound } from '../../utils/general.js';
+
 import {
   verifySchema,
-  notFoundUser,
   errorInServer,
   foundUserByToken,
   IDBodyNotUserID,
@@ -53,7 +55,9 @@ export default {
         where: { email },
       });
 
-      if (notFoundUser(res, user)) return;
+      if (!user) {
+        return notFound(res, 'Usuário não encontrado');
+      }
 
       const acessCode = nanoid(6);
       const { username } = user;
@@ -143,7 +147,9 @@ export default {
       if (usersAcess[email]) {
         const user = await User.findOne({ where: { email } });
 
-        if (notFoundUser(res, user)) return;
+        if (!user) {
+          return notFound(res, 'Usuário não encontrado');
+        }
 
         updatePass(res, user, newPassword);
         delete usersAcess[email];
@@ -178,7 +184,9 @@ export default {
       const user = await foundUserByToken(req);
       const user_id = user?.id;
 
-      if (notFoundUser(res, user)) return;
+      if (!user) {
+        return notFound(res, 'Usuário não encontrado');
+      }
       if (IDBodyNotUserID(res, id, user_id)) return;
 
       const passwordIsCorrect = await user.verifyPassword(
