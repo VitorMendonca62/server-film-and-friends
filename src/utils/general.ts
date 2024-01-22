@@ -1,17 +1,23 @@
 import { Response } from "express";
-import IResponse from "../types/response";
 
-export function errorInServer(res: Response, error: Error) {
-  const response: IResponse<T> = {
+export default function getErrorMessage(error: unknown) {
+  if (error instanceof Error) return error.message;
+  return String(error);
+}
+
+export function errorInServer(res: Response, error: unknown) {
+  const errorMessage = getErrorMessage(error);
+
+  const response: IResponse = {
     msg: "Algo de errado com o servidor! Tente novamente!",
     error: true,
-    data: error.message,
+    data: errorMessage,
   };
   return res.status(500).json(response);
 }
 
 export function notFound(res: Response) {
-  const response: IResponse<T> = {
+  const response: IResponse = {
     msg: "Não conseguimos encontrar!",
     error: true,
     data: {},

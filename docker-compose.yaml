@@ -13,3 +13,15 @@ services:
       - "4660:3306"
     restart: always
     mem_limit: 1024M
+  supertest:
+    image: mysql
+    container_name: supertest
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=supertest
+      - MYSQL_USER=supertest
+      - MYSQL_PASSWORD=supertest
+    ports:
+      - "4661:3306"
+    restart: always
+    mem_limit: 512M

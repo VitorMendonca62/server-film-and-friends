@@ -1,5 +1,5 @@
 import bcrypt from "bcryptjs";
-import IUser from "../../types/user";
+import { config } from "dotenv";
 import {
   Table,
   Column,
@@ -10,6 +10,8 @@ import {
   PrimaryKey,
   BeforeCreate, 
 } from "sequelize-typescript";
+
+config()
 
 @Table({ timestamps: true, tableName: "users", modelName: "User" })
 class User extends Model<IUser> {
@@ -40,7 +42,7 @@ class User extends Model<IUser> {
 
   @BeforeCreate
   static async encryptingPassword(user: IUser) {
-    user.passwordHash = await bcrypt.hash("aaaaaaa", 10);
+    user.passwordHash = await bcrypt.hash(String(user.password), 10);
     return this;
   }
 }

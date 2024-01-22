@@ -4,8 +4,8 @@ import cors from "cors";
 import rateLimit from "express-rate-limit";
 
 // Components
-import routes from "./routes.js";
-import { startDatabase } from "./database/index.js";
+import routes from "./routes";
+import { startDatabase } from "./database/index";
 
 startDatabase();
 

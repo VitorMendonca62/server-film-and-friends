@@ -5,15 +5,15 @@ import express from "express";
 // import auth from "./app/middlewares/auth.js";
 
 // Controllers
-import UserController from "./app/controllers/UserController.js";
-// import SessionController from "./app/controllers/SessionController.js";
-// import PassController from "./app/controllers/PassController.js";
-// import MediaController from "./app/controllers/MediaController.js";
+import UserController from "./app/controllers/UserController";
+// import SessionController from "./app/controllers/SessionController";
+// import PassController from "./app/controllers/PassController";
+// import MediaController from "./app/controllers/MediaController";
 
 const routes = express.Router();
 
 // Routes:
-// routes.post("/users", UserController.store);
+routes.post("/users", UserController.store);
 routes.get("/users", UserController.index);
 routes.get("/users/find", UserController.show);
 // routes.post("/auth/login", SessionController.store);

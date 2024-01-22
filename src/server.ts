@@ -1,6 +1,6 @@
 import { config } from "dotenv";
 import app from "./app";
-// import fetchAPIMedia from "./services/media/api_movies.js";
+// import fetchAPIMedia from "./services/media/api_movies";
 
 // Take variables of environment
 config();
