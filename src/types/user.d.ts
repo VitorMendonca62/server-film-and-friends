@@ -16,4 +16,3 @@ interface IUserSchema {
   email: string | undefined;
   password: string | undefined;
 }
-

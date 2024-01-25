@@ -1,4 +1,5 @@
 import { Response } from "express";
+import { connection } from "../database";
 
 export default function getErrorMessage(error: unknown) {
   if (error instanceof Error) return error.message;
@@ -23,4 +24,8 @@ export function notFound(res: Response) {
     data: {},
   };
   return res.status(404).json(response);
+}
+
+export async function deleteAllData(){
+    await connection.query(" DELETE FROM users;");
 }

@@ -1,6 +1,6 @@
 import app from "../../app";
 import request from "supertest";
-import { connection } from "../../database";
+import { deleteAllData } from "../../utils/general";
 
 describe("get /users", () => {
   it("Listando usuarios", async () => {
@@ -10,19 +10,31 @@ describe("get /users", () => {
   });
 });
 
-describe("post /users", () =>{
+describe("post /users", () => {
   it("Criando usuario", async () => {
-    const response = await request(app).post("/users").send({
+    const user: IUserSchema = {
       name: "test-post-user",
       username: "test-post-user",
       password: "teste1234",
       email: "test-post-user@test.com",
-    });
+    };
+
+    const response = await request(app).post("/users").send(user);
+    
+    const {error, msg, data} = response.body
+    const {name, username, email} = response.body.data
 
     expect(response.statusCode).toBe(201);
-    expect(response.body.error).toBe(false);
-    expect(response.body.msg).toBe("Usuário cadastrado com sucesso!");
-    expect(Object.values(response.body.data).length).toBe(0);
+    expect(error).toBe(false);
+    expect(msg).toBe("Usuário cadastrado com sucesso!");
+
+    expect(name).toBe(user.name);
+    expect(username).toBe(user.username);
+    expect(email).toBe(user.email);
+
+    expect(data).toHaveProperty("id");
+    expect(data).toHaveProperty("passwordHash");
+    expect(data).toHaveProperty("role");
   });
 
   it("Criando usuario sem nome", async () => {
@@ -125,7 +137,9 @@ describe("post /users", () =>{
 
     expect(response.statusCode).toBe(400);
     expect(response.body.error).toBe(true);
-    expect(response.body.msg).toBe("Apelido já cadastrado, tente utilizar outro apelido!");
+    expect(response.body.msg).toBe(
+      "Apelido já cadastrado, tente utilizar outro apelido!",
+    );
     expect(Object.values(response.body.data).length).toBe(0);
   });
 
@@ -148,8 +162,7 @@ describe("post /users", () =>{
     expect(response.body.msg).toBe("Email já cadastrado, tente fazer login!");
     expect(Object.values(response.body.data).length).toBe(0);
   });
-
-})
+});
 
 describe("get users/find", () => {
   const user = {
@@ -170,7 +183,6 @@ describe("get users/find", () => {
     expect(response.body.error).toBe(true);
     expect(response.body.msg).toBe("Algo deu errado!");
     expect(Object.values(response.body.data).length).toBe(0);
-
   });
 
   it("Procurando um usuario que não está no banco de dados", async () => {
@@ -198,9 +210,5 @@ describe("get users/find", () => {
   });
 });
 
-
-async function deleteAllData() {
-  await connection.query(" DELETE FROM users;")
-}
 
 deleteAllData()

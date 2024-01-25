@@ -102,7 +102,7 @@ export default {
       if (await foundUsername(res, username)) return;
       if (await foundEmail(res, email)) return;
 
-      await User.create({
+      const user = await User.create({
         id: v4(),
         name,
         username,
@@ -111,11 +111,10 @@ export default {
         passwordHash,
         role,
       });
-
       return res.status(201).json({
         msg: "Usuário cadastrado com sucesso!",
         error: false,
-        data: {},
+        data: process.env.ENVIRONMENT === "test" ? user : {},
       });
     } catch (error) {
       return errorInServer(res, error);

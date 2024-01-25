@@ -6,7 +6,7 @@ import express from "express";
 
 // Controllers
 import UserController from "./app/controllers/UserController";
-// import SessionController from "./app/controllers/SessionController";
+import SessionController from "./app/controllers/SessionController";
 // import PassController from "./app/controllers/PassController";
 // import MediaController from "./app/controllers/MediaController";
 
@@ -16,7 +16,7 @@ const routes = express.Router();
 routes.post("/users", UserController.store);
 routes.get("/users", UserController.index);
 routes.get("/users/find", UserController.show);
-// routes.post("/auth/login", SessionController.store);
+routes.post("/auth/login", SessionController.store);
 
 // routes.post("/media", MediaController.store);
 // routes.get("/media/:id", MediaController.show);

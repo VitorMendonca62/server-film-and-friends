@@ -8,10 +8,10 @@ import {
   CreatedAt,
   UpdatedAt,
   PrimaryKey,
-  BeforeCreate, 
+  BeforeCreate,
 } from "sequelize-typescript";
 
-config()
+config();
 
 @Table({ timestamps: true, tableName: "users", modelName: "User" })
 class User extends Model<IUser> {
@@ -31,6 +31,9 @@ class User extends Model<IUser> {
   @Column(DataType.STRING)
   declare role: string;
 
+  @Column(DataType.VIRTUAL)
+  declare password: string
+
   @Column(DataType.STRING)
   declare passwordHash: string;
 
@@ -44,6 +47,10 @@ class User extends Model<IUser> {
   static async encryptingPassword(user: IUser) {
     user.passwordHash = await bcrypt.hash(String(user.password), 10);
     return this;
+  }
+
+  async verifyPassword(password: string) {
+    return bcrypt.compare(password, this.passwordHash);
   }
 }
 
