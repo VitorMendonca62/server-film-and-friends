@@ -2,7 +2,6 @@ import app from "../../app";
 import request from "supertest";
 import { deleteAllData } from "../../utils/general";
 
-const tokenReturn = { token: "" };
 describe("post /auth/login", () => {
   const user = {
     name: "teste-user",
@@ -54,7 +53,7 @@ describe("post /auth/login", () => {
     expect(response.body.msg).toBe("Email é obrigatório");
     expect(response.body.type).toBe("email");
   });
-  it("sem email", async () => {
+  it("email invaliodo", async () => {
     const loginData = {
       email: "test.com",
       password: "123456",
@@ -90,7 +89,6 @@ describe("post /auth/login", () => {
 
     const response = await request(app).post("/auth/login").send(loginData);
 
-    tokenReturn.token = response.headers.authorization;
     const { username, auth, msg, error, token } = response.body;
 
     expect(response.statusCode).toBe(201);
@@ -122,4 +120,4 @@ describe("post /auth/login", () => {
 });
 
 deleteAllData();
-export default tokenReturn;
+

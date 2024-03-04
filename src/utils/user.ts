@@ -83,7 +83,7 @@ export async function addToRoleInUser(authorization: string | undefined) {
   return "user";
 }
 
-export function IDBodyNotUserID(res: Response, id: string, user_id: string) {
+export function IDBodyNotUserID(res: Response, id: string, user_id: string | undefined) {
   if (id !== user_id) {
     const response: IResponse = {
       msg: "Algo deu errado!",
@@ -94,11 +94,3 @@ export function IDBodyNotUserID(res: Response, id: string, user_id: string) {
   }
   return false;
 }
-
-// // Take user by token in req
-
-// // Found user bu username
-
-// // Found user bu username by email
-
-// Verify erro in req.body

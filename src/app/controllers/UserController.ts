@@ -149,50 +149,51 @@ export default {
     }
   },
 
-  // async update(req: Request, res: Response) {
-  //   const { id } = req.params;
-  //   const { name, username } = req.body;
+  async update(req: Request, res: Response) {
+    const { id } = req.params;
+    const { name, username } = req.body;
 
-  //   const userSchema = Yup.object().shape({
-  //     name: Yup.string().max(50, "Nome muito longo").min(8, "Nome muito cuito"),
-  //     username: Yup.string()
-  //       .max(50, "Apelido muito longo")
-  //       .min(4, "Apelido muito cuito"),
-  //   });
+    const userSchema = Yup.object().shape({
+      name: Yup.string().max(50, "Nome muito longo").min(8, "Nome muito cuito"),
+      username: Yup.string()
+        .max(50, "Apelido muito longo")
+        .min(4, "Apelido muito cuito"),
+    });
 
-  //   if (verifySchema(req: Request, res: Response, userSchema)) return;
+    if (verifySchema(req.body, res, userSchema)) return;
 
-  //   try {
-  //     const user = await foundUserByToken(req);
-  //     const user_id = user?.id;
+    try {
+      const user = await foundUserByToken(req.headers.authorization);
+      const user_id = user?.id;
 
-  //     if (!user) {
-  //       return notFound(res, "Usuário não encontrado");
-  //     }
-  //     if (IDBodyNotUserID(res, id, user_id)) return;
+      if (!user) {
+        return notFound(res);
+      }
+      if (IDBodyNotUserID(res, id, user_id)) return;
 
-  //     const isUserWithUsername = await User.findOne({
-  //       where: {
-  //         username: user.username === username ? "" : username,
-  //       },
-  //     });
-  //     if (isUserWithUsername) {
-  //       return res.status(400).json({
-  //         msg: "Apelido já cadastrado, tente utilizar outro apelido!",
-  //         error: true,
-  //       });
-  //     }
+      const isUserWithUsername = await User.findOne({
+        where: {
+          username: user.username === username ? "" : username,
+        },
+      });
+      
+      if (isUserWithUsername) {
+        return res.status(400).json({
+          msg: "Apelido já cadastrado, tente utilizar outro apelido!",
+          error: true,
+        });
+      }
 
-  //     user.update({
-  //       name: name || user.name,
-  //       username: username || user.username,
-  //     });
+      user.update({
+        name: name || user.name,
+        username: username || user.username,
+      });
 
-  //     return res
-  //       .status(200)
-  //       .json({ error: false, msg: "Usuário atualizado com sucesso!" });
-  //   } catch (error) {
-  //     return errorInServer(res, error);
-  //   }
-  // },
+      return res
+        .status(200)
+        .json({ error: false, msg: "Usuário atualizado com sucesso!" });
+    } catch (error) {
+      return errorInServer(res, error);
+    }
+  },
 };

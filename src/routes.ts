@@ -7,7 +7,7 @@ import express from "express";
 // Controllers
 import UserController from "./app/controllers/UserController";
 import SessionController from "./app/controllers/SessionController";
-// import PassController from "./app/controllers/PassController";
+import PassController from "./app/controllers/PasswordController";
 // import MediaController from "./app/controllers/MediaController";
 
 const routes = express.Router();
@@ -23,11 +23,11 @@ routes.post("/auth/login", SessionController.store);
 // routes.get("/media", MediaController.index);
 // routes.use(auth);
 
-// routes.delete("/users/:id", UserController.delete);
-// routes.patch("/users/:id", UserController.update);
-// routes.post("/users/password/email", PassController.sendEmailForgotPass);
-// routes.post("/users/password/code", PassController.verifyCodeForgotPass);
-// routes.patch("/users/password/forgot", PassController.forgotPass);
-// routes.patch("/users/password/:id", PassController.updatePassword);
+routes.delete("/users/:id", UserController.delete);
+routes.patch("/users/:id", UserController.update);
+routes.post("/users/password/email", PassController.takeCodeAndSendEmail);
+routes.post("/users/password/code", PassController.verifyCode);
+routes.patch("/users/password/update", PassController.forgotPass);
+routes.patch("/users/password/:id", PassController.updatePassword);
 
 export default routes;

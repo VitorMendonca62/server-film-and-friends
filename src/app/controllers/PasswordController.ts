@@ -3,31 +3,33 @@
 import * as Yup from "yup";
 
 import bcrypt from "bcryptjs";
-import { nanoid } from "nanoid";
+import { v4 } from "uuid";
 
 // Models
 
-import { errorInServer, notFound } from "../../utils/general.js";
-import User from "../../database/models/User.model.js";
+import { errorInServer, notFound } from "../../utils/general";
+import User from "../../database/models/User.model";
 import { Response, Request } from "express";
-import { verifySchema } from "../../utils/user.js";
+import {
+  IDBodyNotUserID,
+  foundUserByToken,
+  verifySchema,
+} from "../../utils/user";
 
-// import {
-//   verifySchema,,
-//   foundUserByToken,
-//   IDBodyNotUserID,
-// } from '../../utils/user';
+// Config;
 
-// Config
-import takeHTMLEmail from '../../../pages/email';
-import transporterEmail from '../../config/email';
+// Services
+import sendMail from "../../services/mail";
 
 interface IUsersAcessCode {
-  email: string
+  [key: string]: string;
+}
+interface IUsersAcess {
+  [key: string]: boolean;
 }
 
-const usersAcessCode: IUsersAcessCode = {};
-const usersAcess = {};
+export const usersAcessCode: IUsersAcessCode = {};
+export const usersAcess: IUsersAcess = {};
 
 async function updatePass(res: Response, user: User, newPassword: string) {
   try {
@@ -46,7 +48,7 @@ async function updatePass(res: Response, user: User, newPassword: string) {
 }
 
 export default {
-  async sendEmailForgotPass(req: Request, res: Response) {
+  async takeCodeAndSendEmail(req: Request, res: Response) {
     const emailSchema = Yup.object().shape({
       email: Yup.string()
         .required("Email é obrigatório")
@@ -64,48 +66,34 @@ export default {
 
       if (!user) return notFound(res);
 
-      const acessCode = nanoid(6);
+      const acessCode = v4().substring(0, 6);
       const { username } = user;
 
-      const mailOptions = {
-        from: "no.reply.movie.and.friends@gmail.com",
-        to: email,
-        subject: "Seu código de acesso para redefinir senha é...",
-        html: takeHTMLEmail(username, acessCode),
-      };
+      if (sendMail(res, email, username, acessCode)) return;
 
-      transporterEmail.sendMail(mailOptions, (err) => {
-        if (err) {
-          return res.status(400).json({
-            msg: "Algo deu errado!",
-            error: true,
-            data: err,
-          });
-        }
-        usersAcessCode[email] = acessCode;
+      usersAcessCode[email] = acessCode;
 
-        return res.status(200).json({
-          msg: "Em breve, você vai receber um e-mail para redefinir sua senha. Se não conseguir encontrar o e-mail, lembre-se de procurar na pasta de spam ou lixo eletrônico.",
-          error: false,
-          data: [],
-        });
+      return res.status(200).json({
+        msg: "Em breve, você vai receber um e-mail para redefinir sua senha. Se não conseguir encontrar o e-mail, lembre-se de procurar na pasta de spam ou lixo eletrônico.",
+        error: false,
+        data: [],
       });
     } catch (error) {
       errorInServer(res, error);
     }
   },
 
-  async verifyCodeForgotPass(req, res) {
+  async verifyCode(req: Request, res: Response) {
     const codeSchema = Yup.object().shape({
-      code: Yup.string()
-        .required("Código é obrigatório")
-        .length(6, "Códido incorreto"),
       email: Yup.string()
         .required("Email é obrigatório")
         .email("Email inválido"),
+      code: Yup.string()
+        .required("Código é obrigatório")
+        .length(6, "Códido incorreto"),
     });
 
-    if (verifySchema(req, res, codeSchema)) return;
+    if (verifySchema(req.body, res, codeSchema)) return;
 
     try {
       const { code, email } = req.body;
@@ -119,6 +107,7 @@ export default {
       }
 
       usersAcess[email] = true;
+
       setTimeout(() => {
         usersAcess[email] = false;
       }, 50000);
@@ -134,28 +123,27 @@ export default {
     }
   },
 
-  async forgotPass(req, res) {
+  async forgotPass(req: Request, res: Response) {
     const { email, newPassword } = req.body;
 
     const userSchema = Yup.object().shape({
-      newPassword: Yup.string()
-        .required("Senha nova é obrigatória")
-        .min(8, "A senha nova é curta demais!"),
       email: Yup.string()
         .required("Email é obrigatório")
         .email("Email inválido"),
+      newPassword: Yup.string()
+        .required("Senha nova é obrigatória")
+        .min(8, "A senha nova é curta demais!"),
     });
 
-    if (verifySchema(req, res, userSchema)) return;
+    if (verifySchema(req.body, res, userSchema)) return;
 
     try {
+      const user = await User.findOne({ where: { email } });
+      if (!user) {
+        return notFound(res);
+      }
+
       if (usersAcess[email]) {
-        const user = await User.findOne({ where: { email } });
-
-        if (!user) {
-          return notFound(res, "Usuário não encontrado");
-        }
-
         updatePass(res, user, newPassword);
         delete usersAcess[email];
       } else {
@@ -170,7 +158,7 @@ export default {
     }
   },
 
-  async updatePassword(req, res) {
+  async updatePassword(req: Request, res: Response) {
     const { id } = req.params;
     const { password, newPassword } = req.body;
 
@@ -182,22 +170,19 @@ export default {
         .required("Senha nova é obrigatória")
         .min(8, "A senha nova é curta demais!"),
     });
-
-    if (verifySchema(req, res, userSchema)) return;
+    
+    if (verifySchema(req.body, res, userSchema)) return;
 
     try {
-      const user = await foundUserByToken(req);
+      const user = await foundUserByToken(req.headers.authorization);
       const user_id = user?.id;
 
       if (!user) {
-        return notFound(res, "Usuário não encontrado");
+        return notFound(res);
       }
       if (IDBodyNotUserID(res, id, user_id)) return;
 
-      const passwordIsCorrect = await user.verifyPassword(
-        password,
-        user.passwordHash,
-      );
+      const passwordIsCorrect = await user.verifyPassword(password);
       if (!passwordIsCorrect) {
         return res.status(400).json({
           msg: "A senha antiga está incorreta!",
@@ -207,6 +192,7 @@ export default {
 
       updatePass(res, user, newPassword);
     } catch (error) {
+      // console.log("______________________ERROR", error)
       return errorInServer(res, error);
     }
   },
