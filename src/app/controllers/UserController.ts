@@ -76,11 +76,11 @@ export default {
     const userSchema = Yup.object().shape({
       name: Yup.string()
         .required("Nome é obrigatório")
-        .max(50, "Nome muito longo")
+        .max(40, "Nome muito longo")
         .min(8, "Nome muito cuito"),
       username: Yup.string()
         .required("Apelido é obrigatório")
-        .max(50, "Apelido muito longo")
+        .max(32, "Apelido muito longo")
         .min(4, "Apelido muito cuito"),
       email: Yup.string()
         .required("Email é obrigatório")
@@ -139,7 +139,7 @@ export default {
 
       const response: IResponse = {
         msg: "Usuário deletado com sucesso!",
-        error: true,
+        error: false,
         data: {},
       };
 
@@ -154,10 +154,14 @@ export default {
     const { name, username } = req.body;
 
     const userSchema = Yup.object().shape({
-      name: Yup.string().max(50, "Nome muito longo").min(8, "Nome muito cuito"),
+      name: Yup.string()
+        .max(40, "Nome muito longo")
+        .min(8, "Nome muito curto")
+        .required("Nome é obrigatório."),
       username: Yup.string()
-        .max(50, "Apelido muito longo")
-        .min(4, "Apelido muito cuito"),
+        .max(32, "Apelido muito longo")
+        .min(4, "Apelido muito curto")
+        .required("Apelido é obrigatório."),
     });
 
     if (verifySchema(req.body, res, userSchema)) return;
@@ -176,7 +180,7 @@ export default {
           username: user.username === username ? "" : username,
         },
       });
-      
+
       if (isUserWithUsername) {
         return res.status(400).json({
           msg: "Apelido já cadastrado, tente utilizar outro apelido!",

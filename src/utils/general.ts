@@ -27,5 +27,5 @@ export function notFound(res: Response) {
 }
 
 export async function deleteAllData(){
-    await connection.query("DELETE FROM users;");
+    await connection.query("DELETE FROM users; ");
 }

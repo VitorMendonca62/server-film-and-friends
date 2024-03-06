@@ -2,6 +2,7 @@ import app from "../../app";
 import request from "supertest";
 import { deleteAllData } from "../../utils/general";
 
+
 describe("post /auth/login", () => {
   const user = {
     name: "teste-user",
@@ -11,6 +12,10 @@ describe("post /auth/login", () => {
   };
   beforeAll(async () => {
     await request(app).post("/users").send(user);
+  });
+
+  afterAll(async () => {
+    deleteAllData();
   });
 
   it("senha curto", async () => {
@@ -91,10 +96,10 @@ describe("post /auth/login", () => {
 
     const { username, auth, msg, error, token } = response.body;
 
+    expect(msg).toBe("Usuário logado com sucesso!");
     expect(response.statusCode).toBe(201);
     expect(username).toBe(user.username);
     expect(auth).toBe(true);
-    expect(msg).toBe("Usuário logado com sucesso!");
     expect(error).toBe(false);
     expect(typeof token === "string").toBe(true);
   });
@@ -109,15 +114,14 @@ describe("post /auth/login", () => {
 
     const { username, auth, msg, error, token } = response.body;
 
+    expect(msg).toBe("Usuário ou senha estão incorretos. Tente novamenete");
     expect(response.statusCode).toBe(400);
     expect(username).toBe(user.username);
     expect(auth).toBe(false);
-    expect(msg).toBe("Usuário ou senha estão incorretos. Tente novamenete");
     expect(error).toBe(true);
     expect(token).toBe(undefined);
     expect(response.headers.authorization).toBe(undefined);
   });
 });
 
-deleteAllData();
 
