@@ -1,17 +1,7 @@
 import { config } from "dotenv";
-// import IConfigDatabase from "../types/database";
-import { Options, Dialect } from "sequelize";
+import { Options } from "sequelize";
 
 config();
-
-interface IConfigDatabase {
-  dialect?: Dialect | undefined;
-  host?: string | undefined;
-  username?: string | undefined;
-  password?: string | undefined;
-  database?: string | undefined;
-  port?: number | undefined;
-}
 
 const configDatabase: IConfigDatabase = {
   dialect: "mysql",
@@ -21,7 +11,6 @@ const configDatabase: IConfigDatabase = {
   database: process.env.MYSQL_DATABASE,
   port: Number(process.env.DATABASE_PORT),
 };
-console.log(configDatabase)
 
 const convertToSequelizeOptions = (
   configDatabase: IConfigDatabase,

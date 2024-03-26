@@ -16,3 +16,15 @@ interface IUserSchema {
   email: string | undefined;
   password: string | undefined;
 }
+interface IUserUpdateSchema {
+  username: string | undefined;
+  name: string | undefined;
+}
+
+interface IUserUpdatePassword {
+  password: string | undefined;
+  newPassword: string | undefined;
+}
+interface JwtPayload {
+  id: string;
+}

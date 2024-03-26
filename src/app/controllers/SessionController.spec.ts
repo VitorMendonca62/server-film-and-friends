@@ -1,127 +1,68 @@
+// Libraries
 import app from "../../app";
 import request from "supertest";
+
+// Utils
 import { deleteAllData } from "../../utils/general";
+import { verifyValidationsKeys } from "../../utils/tests";
 
+describe("Tests in /auth/login", () => {
+  const dataDelete: string[] = [];
 
-describe("post /auth/login", () => {
-  const user = {
-    name: "teste-user",
-    username: "teste-user-test",
-    password: "teste1234",
-    email: "test-user-test0@test.com",
-  };
-  beforeAll(async () => {
-    await request(app).post("/users").send(user);
+  afterAll(() => {
+    deleteAllData(dataDelete);
   });
 
-  afterAll(async () => {
-    deleteAllData();
-  });
-
-  it("senha curto", async () => {
-    const loginData = {
-      email: "test-user-test2@test.com",
-      password: "abcde",
-    };
-
-    const response = await request(app).post("/auth/login").send(loginData);
-
-    expect(response.statusCode).toBe(400);
-    expect(response.body.error).toBe(true);
-    expect(response.body.msg).toBe("A senha é curta demais!");
-    expect(response.body.type).toBe("password");
-  });
-
-  it("não tem senha", async () => {
-    const loginData = {
-      email: "test-user-test1@test.com",
-      password: undefined,
-    };
-
-    const response = await request(app).post("/auth/login").send(loginData);
-
-    expect(response.statusCode).toBe(400);
-    expect(response.body.error).toBe(true);
-    expect(response.body.msg).toBe("Senha é obrigatória");
-    expect(response.body.type).toBe("password");
-  });
-  it("sem email", async () => {
-    const loginData = {
-      email: undefined,
-      password: "123456",
-    };
-
-    const response = await request(app).post("/auth/login").send(loginData);
-
-    expect(response.statusCode).toBe(400);
-    expect(response.body.error).toBe(true);
-    expect(response.body.msg).toBe("Email é obrigatório");
-    expect(response.body.type).toBe("email");
-  });
-  it("email invaliodo", async () => {
-    const loginData = {
-      email: "test.com",
-      password: "123456",
-    };
-
-    const response = await request(app).post("/auth/login").send(loginData);
-
-    expect(response.statusCode).toBe(400);
-    expect(response.body.error).toBe(true);
-    expect(response.body.msg).toBe("Email inválido");
-    expect(response.body.type).toBe("email");
-  });
-
-  it("usuario nao existe", async () => {
-    const loginData = {
-      email: "test@gmail.com",
-      password: "123456",
-    };
-
-    const response = await request(app).post("/auth/login").send(loginData);
-
-    expect(response.statusCode).toBe(404);
-    expect(response.body.error).toBe(true);
-    expect(response.body.msg).toBe("Não conseguimos encontrar!");
-    expect(Object.values(response.body.data).length).toBe(0);
-  });
-
-  it("agora vai", async () => {
-    const loginData = {
+  describe("post /auth/login", () => {
+    const user = {
+      name: "teste-user",
+      username: "teste-user-test",
       password: "teste1234",
       email: "test-user-test0@test.com",
     };
 
-    const response = await request(app).post("/auth/login").send(loginData);
+    beforeAll(async () => {
+      await request(app).post("/users").send(user);
+      dataDelete.push(user.email);
+    });
 
-    const { username, auth, msg, error, token } = response.body;
+    it("Teste de validacao de campos", async () => {
+      await verifyValidationsKeys("post", "/auth/login", ["email", "password"]);
+    });
 
-    expect(msg).toBe("Usuário logado com sucesso!");
-    expect(response.statusCode).toBe(201);
-    expect(username).toBe(user.username);
-    expect(auth).toBe(true);
-    expect(error).toBe(false);
-    expect(typeof token === "string").toBe(true);
-  });
+    it("agora vai", async () => {
+      const loginData = {
+        password: "teste1234",
+        email: "test-user-test0@test.com",
+      };
 
-  it("senha errada vai", async () => {
-    const loginData = {
-      password: "teste12345",
-      email: "test-user-test0@test.com",
-    };
+      const response = await request(app).post("/auth/login").send(loginData);
 
-    const response = await request(app).post("/auth/login").send(loginData);
+      const { username, auth, msg, token } = response.body;
 
-    const { username, auth, msg, error, token } = response.body;
+      expect(msg).toBe("Usuário logado com sucesso!");
+      expect(response.statusCode).toBe(201);
+      expect(username).toBe(user.username);
+      expect(auth).toBe(true);
+      expect(typeof token === "string").toBe(true);
+    });
 
-    expect(msg).toBe("Usuário ou senha estão incorretos. Tente novamenete");
-    expect(response.statusCode).toBe(400);
-    expect(username).toBe(user.username);
-    expect(auth).toBe(false);
-    expect(error).toBe(true);
-    expect(token).toBe(undefined);
-    expect(response.headers.authorization).toBe(undefined);
+    it("senha errada vai", async () => {
+      const loginData = {
+        password: "teste12345",
+        email: "test-user-test0@test.com",
+      };
+
+      const response = await request(app).post("/auth/login").send(loginData);
+
+      const { username, auth, msg, token } = response.body;
+
+      expect(msg).toBe("Usuário ou senha estão incorretos. Tente novamenete");
+      expect(response.statusCode).toBe(400);
+      expect(username).toBe(user.username);
+      expect(auth).toBe(false);
+      expect(token).toBe(undefined);
+      expect(response.headers.authorization).toBe(undefined);
+    });
   });
 });
-
-

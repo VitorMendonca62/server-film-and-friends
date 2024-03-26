@@ -1,15 +1,16 @@
-// Modulos
+// Libraries
 import * as Yup from "yup";
 import { Op } from "sequelize";
 import { v4 } from "uuid";
 
 // Models
 import User from "../../database/models/User.model";
+
+// Types 
 import { Request, Response } from "express";
+
 // Utils
-
 import { errorInServer, notFound } from "../../utils/general";
-
 import {
   verifySchema,
   foundUserByToken,
@@ -18,6 +19,7 @@ import {
   addToRoleInUser,
   IDBodyNotUserID,
 } from "../../utils/user";
+import { textsInputsErrors } from "../../utils/texts";
 
 export default {
   async index(req: Request, res: Response) {
@@ -40,12 +42,7 @@ export default {
 
     try {
       if (id === "undefined" && username === "undefined") {
-        const response: IResponse = {
-          msg: "Algo deu errado!",
-          error: true,
-          data: {},
-        };
-        return res.status(400).json(response);
+        return notFound(res);
       }
 
       const user = await User.findOne({
@@ -74,20 +71,10 @@ export default {
 
   async store(req: Request, res: Response) {
     const userSchema = Yup.object().shape({
-      name: Yup.string()
-        .required("Nome é obrigatório")
-        .max(40, "Nome muito longo")
-        .min(8, "Nome muito cuito"),
-      username: Yup.string()
-        .required("Apelido é obrigatório")
-        .max(32, "Apelido muito longo")
-        .min(4, "Apelido muito cuito"),
-      email: Yup.string()
-        .required("Email é obrigatório")
-        .email("Email inválido"),
-      password: Yup.string()
-        .required("Senha é obrigatória")
-        .min(6, "A senha é curta demais!"),
+      name: textsInputsErrors.name.yup,
+      username: textsInputsErrors.username.yup,
+      email: textsInputsErrors.email.yup,
+      password: textsInputsErrors.password.yup,
     });
 
     if (verifySchema(req.body, res, userSchema)) return;
@@ -154,14 +141,8 @@ export default {
     const { name, username } = req.body;
 
     const userSchema = Yup.object().shape({
-      name: Yup.string()
-        .max(40, "Nome muito longo")
-        .min(8, "Nome muito curto")
-        .required("Nome é obrigatório."),
-      username: Yup.string()
-        .max(32, "Apelido muito longo")
-        .min(4, "Apelido muito curto")
-        .required("Apelido é obrigatório."),
+      name: textsInputsErrors.name.yup,
+      username: textsInputsErrors.username.yup,
     });
 
     if (verifySchema(req.body, res, userSchema)) return;

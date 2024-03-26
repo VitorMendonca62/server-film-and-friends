@@ -1,14 +1,13 @@
-// Modules
+// Libraries
 import { Sequelize } from "sequelize-typescript";
+import { config } from "dotenv";
 
 // Config
 import configDatabase from "../config/database";
-import { config } from "dotenv";
 
 config();
 
 // Connection
-
 export const connection = new Sequelize({
   ...configDatabase,
   models: [__dirname + "/**/*.model.ts"],

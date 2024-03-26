@@ -1,14 +1,22 @@
-/* eslint-disable consistent-return */
+// Libraries
 import jwt from "jsonwebtoken";
 import * as Yup from "yup";
-import authConfig from "../../config/auth";
-import User from "../../database/models/User.model";
-
-import { Request, Response } from "express";
-import { errorInServer, notFound } from "../../utils/general";
-import { verifySchema } from "../../utils/user";
 
 // Models
+import User from "../../database/models/User.model";
+
+// Types
+import { Request, Response } from "express";
+
+// Utils
+import { errorInServer, notFound } from "../../utils/general";
+import { verifySchema } from "../../utils/user";
+import { textsInputsErrors } from "../../utils/texts";
+
+// Config
+import authConfig from "../../config/auth";
+
+// Types
 interface IDataUser {
   id: string;
   email: string;
@@ -24,15 +32,13 @@ interface IResponseSession {
   error: boolean;
 }
 
+// Os testes estão mt lentPs, algo pode ter de errado!
+
 export default {
   async store(req: Request, res: Response) {
     const loginSchema = Yup.object().shape({
-      email: Yup.string()
-        .required("Email é obrigatório")
-        .email("Email inválido"),
-      password: Yup.string()
-        .required("Senha é obrigatória")
-        .min(6, "A senha é curta demais!"),
+      email: textsInputsErrors.email.yup,
+      password: textsInputsErrors.password.yup,
     });
 
     if (verifySchema(req.body, res, loginSchema)) return;

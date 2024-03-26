@@ -1,6 +1,8 @@
+// Libraries
 import { config } from "dotenv";
+
+// Components
 import app from "./app";
-// import fetchAPIMedia from "./services/media/api_movies";
 
 // Take variables of environment
 config();
@@ -13,3 +15,5 @@ const HOST = "localhost";
 app.listen(PORT, () =>
   console.log(`[RUN] Server listing in http://${HOST}:${PORT}`),
 );
+
+

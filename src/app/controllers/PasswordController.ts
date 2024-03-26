@@ -1,22 +1,23 @@
-/* eslint-disable consistent-return */
-// Modules
+// Libraries
 import * as Yup from "yup";
-
 import bcrypt from "bcryptjs";
 import { v4 } from "uuid";
 
 // Models
-
-import { errorInServer, notFound } from "../../utils/general";
 import User from "../../database/models/User.model";
-import { Response, Request } from "express";
-import {
-  IDBodyNotUserID,
-  foundUserByToken,
-  verifySchema,
-} from "../../utils/user";
 
-// Config;
+// Types 
+import { Response, Request } from "express";
+
+
+// Utils
+import { errorInServer, notFound } from "../../utils/general";
+import {
+IDBodyNotUserID,
+foundUserByToken,
+verifySchema,
+} from "../../utils/user";
+import { textsInputsErrors } from "../../utils/texts";
 
 // Services
 import sendMail from "../../services/mail";
@@ -50,9 +51,7 @@ async function updatePass(res: Response, user: User, newPassword: string) {
 export default {
   async takeCodeAndSendEmail(req: Request, res: Response) {
     const emailSchema = Yup.object().shape({
-      email: Yup.string()
-        .required("Email é obrigatório")
-        .email("Email inválido"),
+      email: textsInputsErrors.email.yup
     });
 
     if (verifySchema(req.body, res, emailSchema)) return;
@@ -85,9 +84,7 @@ export default {
 
   async verifyCode(req: Request, res: Response) {
     const codeSchema = Yup.object().shape({
-      email: Yup.string()
-        .required("Email é obrigatório")
-        .email("Email inválido"),
+      email: textsInputsErrors.email.yup,
       code: Yup.string()
         .required("Código é obrigatório")
         .length(6, "Códido incorreto"),
@@ -192,7 +189,6 @@ export default {
 
       updatePass(res, user, newPassword);
     } catch (error) {
-      // console.log("______________________ERROR", error)
       return errorInServer(res, error);
     }
   },

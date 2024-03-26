@@ -1,3 +1,4 @@
+// Libraries
 import bcrypt from "bcryptjs";
 import { config } from "dotenv";
 import {
@@ -10,6 +11,7 @@ import {
   PrimaryKey,
   BeforeCreate,
 } from "sequelize-typescript";
+
 
 config();
 

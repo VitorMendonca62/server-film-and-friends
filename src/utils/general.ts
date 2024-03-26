@@ -1,4 +1,9 @@
+// Types
 import { Response } from "express";
+
+
+
+// Components
 import { connection } from "../database";
 
 export default function getErrorMessage(error: unknown) {
@@ -26,6 +31,8 @@ export function notFound(res: Response) {
   return res.status(404).json(response);
 }
 
-export async function deleteAllData(){
-    await connection.query("DELETE FROM users; ");
+export async function deleteAllData(values: string[]) {
+  await connection.query(
+    `DELETE FROM users WHERE email IN (${values.join(",")})`,
+  );
 }

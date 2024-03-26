@@ -1,14 +1,12 @@
-// Modules
+// Libraries
 import { jwtDecode } from "jwt-decode";
-import { Schema, ValidationError } from "yup";
 
 // Models
 import User from "../database/models/User.model";
-import { Response } from "express";
 
-interface JwtPayload {
-  id: string;
-}
+// Types
+import { Response } from "express";
+import { Schema, ValidationError } from "yup";
 
 export function verifySchema(
   data: IUserSchema,
@@ -30,7 +28,10 @@ export function verifySchema(
     return true;
   }
 }
-export async function foundUsername(res: Response, username: string) {
+export async function foundUsername(
+  res: Response,
+  username: string,
+): Promise<boolean> {
   const isUserWithUsername = await User.findOne({
     where: {
       username,
@@ -47,7 +48,11 @@ export async function foundUsername(res: Response, username: string) {
   }
   return false;
 }
-export async function foundEmail(res: Response, email: string) {
+
+export async function foundEmail(
+  res: Response,
+  email: string,
+): Promise<boolean> {
   const isUserWithEmail = await User.findOne({
     where: {
       email,
@@ -60,12 +65,15 @@ export async function foundEmail(res: Response, email: string) {
       error: true,
       data: {},
     };
-    return res.status(400).json(response);
+    res.status(400).json(response);
+    return true;
   }
   return false;
 }
 
-export async function foundUserByToken(authorization: string | undefined) {
+export async function foundUserByToken(
+  authorization: string | undefined,
+): Promise<User | undefined | null> {
   if (typeof authorization === "string") {
     const token = authorization.split(" ")[1];
     const decodedToken = jwtDecode(token) as JwtPayload;
@@ -75,7 +83,9 @@ export async function foundUserByToken(authorization: string | undefined) {
   }
 }
 
-export async function addToRoleInUser(authorization: string | undefined) {
+export async function addToRoleInUser(
+  authorization: string | undefined,
+): Promise<"admin" | "user"> {
   if (typeof authorization === "string") {
     const user = await foundUserByToken(authorization);
     return user?.role === "admin" ? "admin" : "user";
@@ -83,14 +93,19 @@ export async function addToRoleInUser(authorization: string | undefined) {
   return "user";
 }
 
-export function IDBodyNotUserID(res: Response, id: string, user_id: string | undefined) {
+export function IDBodyNotUserID(
+  res: Response,
+  id: string,
+  user_id: string | undefined,
+): boolean {
   if (id !== user_id) {
     const response: IResponse = {
       msg: "Algo deu errado!",
       error: true,
       data: {},
     };
-    return res.status(400).json(response);
+    res.status(400).json(response);
+    return true;
   }
   return false;
 }
