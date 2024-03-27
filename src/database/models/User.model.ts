@@ -10,6 +10,7 @@ import {
   UpdatedAt,
   PrimaryKey,
   BeforeCreate,
+  AllowNull,
 } from "sequelize-typescript";
 
 
@@ -20,25 +21,30 @@ class User extends Model<IUser> {
   @PrimaryKey
   @Column(DataType.STRING)
   declare id: string;
-
+  
+  @AllowNull(false)
   @Column(DataType.STRING)
   declare name: string;
-
+  
+  @AllowNull(false)
   @Column(DataType.STRING)
   declare username: string;
-
+  
+  @AllowNull(false)
   @Column(DataType.STRING)
   declare email: string;
-
+  
+  @AllowNull(false)
   @Column(DataType.STRING)
   declare role: string;
-
+  
+  @AllowNull(false)
   @Column(DataType.VIRTUAL)
   declare password: string
-
+  
   @Column(DataType.STRING)
   declare passwordHash: string;
-
+  
   @CreatedAt
   declare createdAt: Date;
 

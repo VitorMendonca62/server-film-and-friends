@@ -9,7 +9,7 @@ import { Response } from "express";
 import { Schema, ValidationError } from "yup";
 
 export function verifySchema(
-  data: IUserSchema,
+  data: IUserSchema | ISerieSchema | IMovieSchema,
   res: Response,
   schema: Schema,
 ): boolean {

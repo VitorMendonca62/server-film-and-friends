@@ -1,3 +1,4 @@
+import media from "./api/media"
 // Libraries
 import { config } from "dotenv";
 
@@ -16,4 +17,4 @@ app.listen(PORT, () =>
   console.log(`[RUN] Server listing in http://${HOST}:${PORT}`),
 );
 
-
+media

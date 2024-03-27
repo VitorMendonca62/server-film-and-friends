@@ -8,7 +8,7 @@ import express from "express";
 import UserController from "./app/controllers/UserController";
 import SessionController from "./app/controllers/SessionController";
 import PassController from "./app/controllers/PasswordController";
-// import MediaController from "./app/controllers/MediaController";
+import MediaController from "./app/controllers/MediaController";
 
 const routes = express.Router();
 
@@ -18,7 +18,7 @@ routes.get("/users", UserController.index);
 routes.get("/users/find", UserController.show);
 routes.post("/auth/login", SessionController.store);
 
-// routes.post("/media", MediaController.store);
+routes.post("/media", MediaController.store);
 // routes.get("/media/:id", MediaController.show);
 // routes.get("/media", MediaController.index);
 // routes.use(auth);
@@ -29,5 +29,7 @@ routes.post("/users/password/email", PassController.takeCodeAndSendEmail);
 routes.post("/users/password/code", PassController.verifyCode);
 routes.patch("/users/password/update", PassController.forgotPass);
 routes.patch("/users/password/:id", PassController.updatePassword);
+
+
 
 export default routes;

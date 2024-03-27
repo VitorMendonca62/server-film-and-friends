@@ -5,9 +5,12 @@ interface IResponse {
   status?: number;
 }
 
-interface IErrorMessage{
+interface IErrorMessage {
   msg: string;
   error: boolean;
-  type: string | undefined
+  type: string | undefined;
 }
 
+type ResponseInAPIMedia  = [
+  IResponse| null, null | IMovieSchema | ISerieSchema
+]

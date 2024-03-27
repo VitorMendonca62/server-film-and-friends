@@ -6,3 +6,5 @@ interface IConfigDatabase {
   database?: string | undefined;
   port?: number | undefined;
 }
+
+type TypeModel = Movie | Serie
