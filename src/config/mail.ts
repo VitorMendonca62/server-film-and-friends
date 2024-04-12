@@ -10,7 +10,7 @@ const transporter = nodemailer.createTransport({
     user: "no.reply.movie.and.friends",
     clientId: process.env.EMAIL_ID,
     clientSecret: process.env.EMAIL_SECRET_ID,
-    refreshToken: process.env.EMAIL_TOKEN,
+    refreshToken: process.env.EMAIL_REFRESH_TOKEN,
     accessToken: process.env.EMAIL_ACCESS_TOKEN
   },
 });

@@ -1,30 +1,41 @@
-interface IUser {
-  id: string | undefined;
-  name: string | undefined;
-  username: string | undefined;
-  email: string | undefined;
+interface IUserBasicOutputcSchema {
+  id: string;
+  name: string;
+  username: string;
+  email: string;
+}
+interface IUserBasicInputcSchema {
+  name: string;
+  username: string;
+  email: string;
+  password: string;
+}
+interface IUser extends IUserBasicOutputcSchema {
   role: "admin" | "user";
-  password: string | undefined;
-  passwordHash: string | undefined;
-  createdAt: Date | undefined;
-  updatedAt: Date | undefined;
+  password: string;
+  passwordHash: string;
+}
+interface IUserUpdateNameOrUsername {
+  name: string;
+  username: string;}
+interface IUserUpdatPassword {
+  oldPassword: string;
+  newPassword: string;
 }
 
-interface IUserSchema {
-  name: string | undefined;
-  username: string | undefined;
-  email: string | undefined;
-  password: string | undefined;
-}
-interface IUserUpdateSchema {
-  username: string | undefined;
-  name: string | undefined;
+
+interface IUsersAcessCode {
+  [key: string]: string;
 }
 
-interface IUserUpdatePassword {
-  password: string | undefined;
-  newPassword: string | undefined;
+interface IUsersAcess {
+  [key: string]: boolean;
 }
+
+type NameAndUsername = {
+  name: string;
+  username: string;
+};
 interface JwtPayload {
   id: string;
 }

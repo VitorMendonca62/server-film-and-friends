@@ -1,25 +1,30 @@
+// TUDO OK, 08/04
+
 // Libraries
-import * as Yup from "yup";
-import { Op } from "sequelize";
 import { v4 } from "uuid";
 
 // Models
 import User from "../../database/models/User.model";
 
-// Types 
+// Types
 import { Request, Response } from "express";
 
 // Utils
 import { errorInServer, notFound } from "../../utils/general";
 import {
-  verifySchema,
   foundUserByToken,
   foundUsername,
   foundEmail,
   addToRoleInUser,
   IDBodyNotUserID,
 } from "../../utils/user";
-import { textsInputsErrors } from "../../utils/texts";
+import { verifySchema } from "../../utils/general";
+
+// Schemas
+import {
+  userPostSchema,
+  userUpdateNameOrUsername,
+} from "../../utils/schemas/user";
 
 export default {
   async index(req: Request, res: Response) {
@@ -37,59 +42,53 @@ export default {
   },
 
   async show(req: Request, res: Response) {
-    const username: string = String(req.query.username);
-    const id: string = String(req.query.id);
+    const username = req.query.username as string | undefined;
 
     try {
-      if (id === "undefined" && username === "undefined") {
+      if (username === undefined) {
         return notFound(res);
       }
 
       const user = await User.findOne({
         where: {
-          [Op.or]: [{ username: username || "" }, { id: id || "" }],
+          username,
         },
       });
 
       if (!user) {
         return notFound(res);
       }
-      const response: IResponse = {
+
+      return res.status(200).json({
         msg: "Usuário encontrado com sucesso!",
         data: {
           name: user.name,
           username: user.username,
         },
         error: false,
-      };
-
-      return res.status(200).json(response);
+      });
     } catch (err) {
       return errorInServer(res, err);
     }
   },
 
   async store(req: Request, res: Response) {
-    const userSchema = Yup.object().shape({
-      name: textsInputsErrors.name.yup,
-      username: textsInputsErrors.username.yup,
-      email: textsInputsErrors.email.yup,
-      password: textsInputsErrors.password.yup,
-    });
-
-    if (verifySchema(req.body, res, userSchema)) return;
+    if (verifySchema(req.body, res, userPostSchema)) return;
 
     try {
       const { name, password, username, email, passwordHash } = req.body;
 
       const authorization = req.headers.authorization;
 
-      const role = await addToRoleInUser(authorization);
+      const role =
+        authorization === undefined
+          ? "user"
+          : await addToRoleInUser(authorization);
 
       if (await foundUsername(res, username)) return;
       if (await foundEmail(res, email)) return;
 
-      const user = await User.create({
+      await User.create({
         id: v4(),
         name,
         username,
@@ -98,10 +97,11 @@ export default {
         passwordHash,
         role,
       });
+
       return res.status(201).json({
         msg: "Usuário cadastrado com sucesso!",
         error: false,
-        data: process.env.ENVIRONMENT === "test" ? user : {},
+        data: {},
       });
     } catch (error) {
       return errorInServer(res, error);
@@ -112,25 +112,24 @@ export default {
     const { id } = req.params;
     try {
       const authorization = req.headers.authorization;
-      const user = await foundUserByToken(authorization);
+      const user =
+        authorization === undefined
+          ? null
+          : await foundUserByToken(authorization);
 
       if (!user) {
         return notFound(res);
       }
 
-      const user_id = user?.id;
-
-      if (IDBodyNotUserID(res, id, user_id)) return;
+      if (IDBodyNotUserID(res, id, user.id)) return;
 
       await user.destroy();
 
-      const response: IResponse = {
+      return res.status(200).json({
         msg: "Usuário deletado com sucesso!",
         error: false,
         data: {},
-      };
-
-      return res.status(200).json(response);
+      });
     } catch (error) {
       return errorInServer(res, error);
     }
@@ -138,23 +137,23 @@ export default {
 
   async update(req: Request, res: Response) {
     const { id } = req.params;
-    const { name, username } = req.body;
 
-    const userSchema = Yup.object().shape({
-      name: textsInputsErrors.name.yup,
-      username: textsInputsErrors.username.yup,
-    });
-
-    if (verifySchema(req.body, res, userSchema)) return;
+    if (verifySchema(req.body, res, userUpdateNameOrUsername)) return;
 
     try {
-      const user = await foundUserByToken(req.headers.authorization);
-      const user_id = user?.id;
+      const authorization = req.headers.authorization;
+      const user =
+        authorization === undefined
+          ? null
+          : await foundUserByToken(authorization);
 
       if (!user) {
         return notFound(res);
       }
-      if (IDBodyNotUserID(res, id, user_id)) return;
+
+      if (IDBodyNotUserID(res, id, user.id)) return;
+
+      const { name, username }: NameAndUsername = req.body;
 
       const isUserWithUsername = await User.findOne({
         where: {
@@ -166,6 +165,7 @@ export default {
         return res.status(400).json({
           msg: "Apelido já cadastrado, tente utilizar outro apelido!",
           error: true,
+          data: {},
         });
       }
 
@@ -174,9 +174,11 @@ export default {
         username: username || user.username,
       });
 
-      return res
-        .status(200)
-        .json({ error: false, msg: "Usuário atualizado com sucesso!" });
+      return res.status(200).json({
+        error: false,
+        msg: "Usuário atualizado com sucesso!",
+        data: {},
+      });
     } catch (error) {
       return errorInServer(res, error);
     }

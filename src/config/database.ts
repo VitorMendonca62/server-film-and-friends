@@ -3,7 +3,7 @@ import { Options } from "sequelize";
 
 config();
 
-const configDatabase: IConfigDatabase = {
+const configDatabase = {
   dialect: "mysql",
   host: process.env.DATABASE_HOST,
   username: process.env.MYSQL_USER,

@@ -11,43 +11,46 @@ import {
   AllowNull,
 } from "sequelize-typescript";
 
-
 config();
 
 @Table({ timestamps: true, tableName: "series", modelName: "Serie" })
-class Serie extends Model<ISerieSchema> {
+class Serie extends Model<ISerie> {
   @PrimaryKey
   @Column(DataType.STRING)
-  declare id: string
+  declare id: string;
 
   @AllowNull(false)
   @Column(DataType.STRING)
   declare idAPI: string;
-  
+
   @AllowNull(false)
   @Column(DataType.STRING)
   declare title: string;
-  
+
   @AllowNull(false)
   @Column(DataType.STRING)
   declare releaseDate: string;
-  
+
   @AllowNull(false)
-  @Column(DataType.STRING)
-  declare genres: string;
-  
+  @Column(DataType.JSON)
+  declare genres: string[];
+
   @AllowNull(false)
-  @Column(DataType.STRING)
-  declare seasons: string;
-  
+  @Column(DataType.JSON) // auemntar aqui
+  declare seasons: TypeObjectSeasons[];
+
   @AllowNull(false)
   @Column(DataType.STRING(1000))
   declare description: string;
-  
+
   @AllowNull(false)
-  @Column(DataType.DECIMAL)
+  @Column(DataType.DECIMAL(2))
   declare rating: number;
-  
+
+  @AllowNull(false)
+  @Column(DataType.INTEGER)
+  declare raters: number;
+
   @Column(DataType.STRING)
   declare urlTrailer: string;
 

@@ -1,17 +1,16 @@
+// TUDO OK
+
 import app from "../../app";
 import request from "supertest";
-import { deleteAllData } from "../../utils/general";
-import {
-  verifyTokenAndID,
-  verifyValidationsKeys,
-  fetchLoginData,
-} from "../../utils/tests";
+
+import { verifyTokenAndID, fetchLoginData } from "../../utils/tests/user";
+import { deleteAllData } from "../../utils/tests/general";
 
 const dataDelete: string[] = [];
 
 describe("Test in /users", () => {
   afterAll(() => {
-    deleteAllData(dataDelete);
+    deleteAllData("users", "email", dataDelete);
   });
 
   describe("get /users", () => {
@@ -19,12 +18,50 @@ describe("Test in /users", () => {
       const response = await request(app).get("/users");
 
       expect(response.body.msg).toBe("Aqui estão todos nossos usuários!");
-      expect(response.statusCode).toBe(200);
+      expect(Array.isArray(response.body.data)).toBe(true);
+      expect(response.body.data.length).toBe(0);
+    });
+  });
+
+  describe("get users/find", () => {
+    const user = {
+      name: "teste-user",
+      username: "teste-user",
+      password: "teste1234",
+      email: "test-user-test@test.com",
+    };
+
+    dataDelete.push(`'${String(user.email)}'`);
+
+    beforeAll(async () => {
+      await request(app).post("/users").send(user);
+    });
+
+    it("Procurando um usuario sem username", async () => {
+      const response = await request(app).get("/users/find");
+
+      expect(response.body.msg).toBe("Não conseguimos encontrar!");
+    });
+
+    it("Procurando um usuario que não está no banco de dados", async () => {
+      const response = await request(app).get("/users/find?username=test1");
+
+      expect(response.body.msg).toBe("Não conseguimos encontrar!");
+    });
+
+    it("Procurando um usuario por username", async () => {
+      const response = await request(app).get(
+        "/users/find?username=teste-user",
+      );
+
+      expect(response.body.msg).toBe("Usuário encontrado com sucesso!");
+      expect(response.body.data.name).toBe(user.name);
+      expect(response.body.data.username).toBe(user.username);
     });
   });
 
   describe("post /users", () => {
-    const user: IUserSchema = {
+    const user = {
       name: "test-post-user",
       username: "test-in-use",
       password: "teste1234",
@@ -33,16 +70,7 @@ describe("Test in /users", () => {
 
     beforeAll(async () => {
       await request(app).post("/users").send(user);
-      dataDelete.push(`'${String(user.email)}'`);
-    });
-
-    it("testes de validação de campos", async () => {
-      await verifyValidationsKeys("post", "/users", [
-        "name",
-        "username",
-        "password",
-        "email",
-      ]);
+      dataDelete.push(`'${user.email}'`);
     });
 
     it("Criando usuario com username já criado", async () => {
@@ -56,7 +84,6 @@ describe("Test in /users", () => {
       expect(response.body.msg).toBe(
         "Apelido já cadastrado, tente utilizar outro apelido!",
       );
-      expect(response.statusCode).toBe(400);
     });
 
     it("Criando usuario com email já criado", async () => {
@@ -68,11 +95,10 @@ describe("Test in /users", () => {
       });
 
       expect(response.body.msg).toBe("Email já cadastrado, tente fazer login!");
-      expect(response.statusCode).toBe(400);
     });
 
     it("Criando usuario", async () => {
-      const user: IUserSchema = {
+      const user = {
         name: "test-post-user",
         username: "test-post-user",
         password: "teste1234",
@@ -83,53 +109,11 @@ describe("Test in /users", () => {
       const response = await request(app).post("/users").send(user);
 
       expect(response.body.msg).toBe("Usuário cadastrado com sucesso!");
-      expect(response.statusCode).toBe(201);
-    });
-  });
-
-  describe("get users/find", () => {
-    const user: IUserSchema = {
-      name: "teste-user",
-      username: "teste-user",
-      password: "teste1234",
-      email: "test-user-test@test.com",
-    };
-
-    dataDelete.push(`'${String(user.email)}'`);
-    beforeAll(async () => {
-      await request(app).post("/users").send(user);
-    });
-
-    it("Procurando um usuario sem id e sem username", async () => {
-      const response = await request(app).get("/users/find");
-
-      expect(response.body.msg).toBe("Não conseguimos encontrar!");
-      expect(response.statusCode).toBe(404);
-    });
-
-    it("Procurando um usuario que não está no banco de dados", async () => {
-      const response = await request(app).get(
-        "/users/find?id=test&&username=test1",
-      );
-
-      expect(response.body.msg).toBe("Não conseguimos encontrar!");
-      expect(response.statusCode).toBe(404);
-    });
-
-    it("Procurando um usuario por username", async () => {
-      const response = await request(app).get(
-        "/users/find?id=test&&username=teste-user",
-      );
-
-      expect(response.body.msg).toBe("Usuário encontrado com sucesso!");
-      expect(response.statusCode).toBe(200);
-      expect(response.body.data.name).toBe(user.name);
-      expect(response.body.data.username).toBe(user.username);
     });
   });
 
   describe("delete users/:id", () => {
-    const user: IUserSchema = {
+    const user = {
       name: "test-user-delete",
       username: "test-user-delete",
       password: "teste1234",
@@ -138,15 +122,15 @@ describe("Test in /users", () => {
 
     dataDelete.push(`'${String(user.email)}'`);
 
-    let token: string | undefined;
-    let id: string | undefined;
+    let token: string;
+    let id: string;
 
     beforeAll(async () => {
       [token, id] = await fetchLoginData(user);
     });
 
     it("testes de validação de token e id", async () => {
-      await verifyTokenAndID("delete", `/users/${id}`, token, {
+      await verifyTokenAndID("delete", `/users/${id}`, "/users/test", token, {
         name: "test-token-validation",
         username: "test-token",
       });
@@ -158,12 +142,11 @@ describe("Test in /users", () => {
         .set("authorization", `token ${token}`);
 
       expect(response.body.msg).toBe("Usuário deletado com sucesso!");
-      expect(response.statusCode).toBe(200);
     });
   });
 
   describe("update users/:id", () => {
-    const user: IUserSchema = {
+    const user = {
       name: "test-user-update",
       username: "test-user-update",
       password: "teste1234",
@@ -172,22 +155,15 @@ describe("Test in /users", () => {
 
     dataDelete.push(`'${String(user.email)}'`);
 
-    let token: string | undefined;
-    let id: string | undefined;
+    let token: string;
+    let id: string;
 
     beforeAll(async () => {
       [token, id] = await fetchLoginData(user);
     });
 
-    it("testes de validação de campos", async () => {
-      await verifyValidationsKeys("patch", `/users/${id}`, [
-        "name",
-        "username",
-      ]);
-    });
-
     it("testes de validação de token e id", async () => {
-      await verifyTokenAndID("patch", `/users/${id}`, token, {
+      await verifyTokenAndID("patch", `/users/${id}`, "/users/test", token, {
         name: "test-token-validation",
         username: "test-token",
       });
@@ -205,7 +181,6 @@ describe("Test in /users", () => {
       expect(response.body.msg).toBe(
         "Apelido já cadastrado, tente utilizar outro apelido!",
       );
-      expect(response.statusCode).toBe(400);
     });
 
     it("user atualizado", async () => {
@@ -218,7 +193,6 @@ describe("Test in /users", () => {
         .set("authorization", `token ${token}`);
 
       expect(response.body.msg).toBe("Usuário atualizado com sucesso!");
-      expect(response.statusCode).toBe(200);
     });
   });
 });

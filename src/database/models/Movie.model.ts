@@ -15,7 +15,7 @@ import {
 config();
 
 @Table({ timestamps: true, tableName: "movies", modelName: "Movie" })
-class Movie extends Model<IMovieSchema> {
+class Movie extends Model<IMovie> {
   @PrimaryKey
   @Column(DataType.STRING)
   declare id: string
@@ -33,8 +33,8 @@ class Movie extends Model<IMovieSchema> {
   declare releaseDate: string;
   
   @AllowNull(false)
-  @Column(DataType.STRING)
-  declare genres: string;
+  @Column(DataType.JSON)
+  declare genres: string[];
   
   @AllowNull(false)
   @Column(DataType.INTEGER)
@@ -45,8 +45,12 @@ class Movie extends Model<IMovieSchema> {
   declare description: string;
   
   @AllowNull(false)
-  @Column(DataType.DECIMAL)
+  @Column(DataType.DECIMAL(2))
   declare rating: number;
+
+  @AllowNull(false)
+  @Column(DataType.INTEGER)
+  declare raters: number;
   
   @Column(DataType.STRING)
   declare urlTrailer: string;

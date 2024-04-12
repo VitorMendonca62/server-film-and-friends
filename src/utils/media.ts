@@ -1,6 +1,23 @@
 import { JSDOM } from "jsdom";
 import { v4 } from "uuid";
-import * as Yup from "yup";
+
+const patternObject = {
+  movie: {
+    title: "title",
+    release_date: "releaseDate",
+    runtime: "duration",
+    backdrop_path: "backgroundPath",
+    poster_path: "posterPath",
+    overview: "description",
+  },
+  tv: {
+    name: "title",
+    first_air_date: "releaseDate",
+    backdrop_path: "backgroundPath",
+    poster_path: "posterPath",
+    overview: "description",
+  },
+};
 
 export async function takePropsInSite(url: string) {
   const options = {
@@ -27,7 +44,6 @@ export async function takePropsInSite(url: string) {
   const json = JSON.parse(String(scripts.textContent));
 
   return json;
-
 }
 
 export async function getSeasonWithIMDB(id: string, seasons: number) {
@@ -39,158 +55,64 @@ export async function getSeasonWithIMDB(id: string, seasons: number) {
     const host = `https://www.imdb.com/title/${id}/episodes?season=${season}`;
 
     const json = await takePropsInSite(host);
-    const props = json.props.pageProps;
+    if (!json.error) {
+      const props = json.props.pageProps;
 
-    const episodes = props.contentData.section.episodes.items;
+      const episodes = props.contentData.section.episodes.items;
 
-    objectSeasons.seasons.push({
-      seasonNumber: season,
-      episodeCount: episodes.length,
-    });
+      objectSeasons.seasons.push(
+        JSON.stringify({
+          seasonNumber: season,
+          episodeCount: episodes.length,
+        }),
+      );
+    }
   }
   return objectSeasons;
 }
 
-const basicSchema = {
-  title: Yup.string().required("Não há um titulo").min(2, "Titulo muito curto"),
-  releaseDate: Yup.string()
-    .required("Não tem data de lançamento")
-    .length(10, "Há algo de errado na data de lançamento"),
-  backgroundPath: Yup.string().required("Não há foto para background"),
-  genres: Yup.string().required("Não há gêneros"),
-  description: Yup.string().required("Não há descrição"),
-  urlTrailer: Yup.string(),
-  posterPath: Yup.string(),
-};
-
-export const schemasMedia = {
-  tv: {
-    ...basicSchema,
-    seasons: Yup.string().required("Está faltando as temporadas"),
-  },
-  movie: {
-    ...basicSchema,
-    duration: Yup.number().required("Está faltando a duração"),
-  },
-};
-
-export const formatMovieTMDB = (
-  data: IDataObject,
+export function formatDataTMDB<T>(
+  data: IDataTakeAPI<T>,
+  type: TypeMedia,
   urlTrailer: string | undefined,
-  genres: string[],
   idAPI: string,
-) => {
-  const {
-    title,
-    release_date: releaseDate,
-    runtime: duration,
-    backdrop_path: backgroundPath,
-    poster_path: posterPath,
-    overview: description,
-  } = data;
-
-  const dataReturn: IMovieSchema = {
-    id: v4(),
-    title,
-    releaseDate,
-    backgroundPath,
-    posterPath,
-    description,
-    urlTrailer,
-    genres: JSON.stringify(genres),
-    idAPI,
-    duration: Number(duration),
-    rating: 0,
-  };
-
-  return dataReturn;
-};
-
-export const formatSerieTMDB = (
-  data: IDataObject,
-  urlTrailer: string | undefined,
   genres: string[],
-  idAPI: string,
-) => {
-  const {
-    name: title,
-    first_air_date: releaseDate,
-    backdrop_path: backgroundPath,
-    poster_path: posterPath,
-    overview: description,
-  } = data;
+) {
+  const dataReturn = Object();
 
-  const { seasons: seasonsObject } = data;
+  dataReturn.id = v4();
+  dataReturn.idAPI = idAPI;
+  dataReturn.urlTrailer = urlTrailer;
+  dataReturn.genres = genres;
+  dataReturn.rating = 0;
+  dataReturn.raters = 0;
 
-  const seasons = seasonsObject.map((season: ISeasonTMDB) => {
-    if (season.season_number > 0) {
-      return {
-        seasonNumber: season.season_number,
-        episodeCount: season.episode_count,
-      };
+  const keysPattern = Object.keys(patternObject[type]);
+  const pattern = patternObject[type];
+
+  type KeysPattern = keyof typeof pattern;
+
+  for (const key of keysPattern as KeysPattern[]) {
+    if (key in data) {
+      dataReturn[pattern[key]] = data[key];
     }
-    return {};
-  });
+  }
 
-  const dataReturn: ISerieSchema = {
-    id: v4(),
-    title,
-    releaseDate,
-    backgroundPath,
-    posterPath,
-    description,
-    urlTrailer,
-    genres: JSON.stringify(genres),
-    idAPI,
-    rating: 0,
-    seasons: JSON.stringify({ seasons: seasons }),
-  };
+  if (type === "tv") {
+    const seasonsObject = data.seasons as ISeasonTMDB[];
 
-  return dataReturn;
-};
+    const seasons = seasonsObject.map((season: ISeasonTMDB) => {
+      if (season.season_number > 0) {
+        return {
+          seasonNumber: season.season_number,
+          episodeCount: season.episode_count,
+        };
+      }
+      return { seasonNumber: 0, episodeCount: 0 };
+    });
 
-export const formatMovieIMDB = (
-  data: IMedia,
-  infoMedia: { runtime: { seconds: number } },
-) => {
-  const { seconds } = infoMedia.runtime;
-  const duration = seconds / 60;
-
-  const dataReturn: IMovieSchema = {
-    id: data.id,
-    idAPI: data.idAPI,
-    title: data.title,
-    releaseDate: data.releaseDate,
-    genres: data.genres,
-    description: data.description,
-    urlTrailer: data.urlTrailer,
-    posterPath: data.posterPath,
-    backgroundPath: data.backgroundPath,
-    rating: 0,
-    duration,
-  };
+    dataReturn.seasons = seasons;
+  }
 
   return dataReturn;
-};
-
-export const formatSerieIMDB = async (data: IMedia, numberSeasons: number) => {
-  const seasons = JSON.stringify(
-    await getSeasonWithIMDB(data.idAPI, numberSeasons),
-  );
-
-  const dataReturn: ISerieSchema = {
-    id: data.id,
-    idAPI: data.idAPI,
-    title: data.title,
-    releaseDate: data.releaseDate,
-    genres: data.genres,
-    description: data.description,
-    urlTrailer: data.urlTrailer,
-    posterPath: data.posterPath,
-    backgroundPath: data.backgroundPath,
-    rating: 0,
-    seasons,
-  };
-
-  return dataReturn;
-};
+}

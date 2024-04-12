@@ -1,3 +1,6 @@
+// TUDO OIK
+
+
 // Libraries
 import { jwtDecode } from "jwt-decode";
 
@@ -6,28 +9,7 @@ import User from "../database/models/User.model";
 
 // Types
 import { Response } from "express";
-import { Schema, ValidationError } from "yup";
 
-export function verifySchema(
-  data: IUserSchema | ISerieSchema | IMovieSchema,
-  res: Response,
-  schema: Schema,
-): boolean {
-  try {
-    schema.validateSync(data, { abortEarly: false });
-    return false;
-  } catch (err) {
-    if (err instanceof ValidationError) {
-      const message: IErrorMessage = {
-        msg: err.errors[0],
-        error: true,
-        type: err.inner[0].path,
-      };
-      res.status(400).json(message);
-    }
-    return true;
-  }
-}
 export async function foundUsername(
   res: Response,
   username: string,
@@ -37,13 +19,13 @@ export async function foundUsername(
       username,
     },
   });
+
   if (isUserWithUsername) {
-    const response: IResponse = {
+    res.status(400).json({
       msg: "Apelido já cadastrado, tente utilizar outro apelido!",
       error: true,
       data: {},
-    };
-    res.status(400).json(response);
+    });
     return true;
   }
   return false;
@@ -60,51 +42,44 @@ export async function foundEmail(
   });
 
   if (isUserWithEmail) {
-    const response: IResponse = {
+    res.status(400).json({
       msg: "Email já cadastrado, tente fazer login!",
       error: true,
       data: {},
-    };
-    res.status(400).json(response);
+    });
     return true;
   }
   return false;
 }
 
 export async function foundUserByToken(
-  authorization: string | undefined,
-): Promise<User | undefined | null> {
-  if (typeof authorization === "string") {
-    const token = authorization.split(" ")[1];
-    const decodedToken = jwtDecode(token) as JwtPayload;
-    const { id } = decodedToken;
-    const user = await User.findOne({ where: { id } });
-    return user;
-  }
+  authorization: string,
+): Promise<User | null> {
+  const token = authorization.split(" ")[1];
+  const decodedToken = jwtDecode(token) as JwtPayload;
+  const { id } = decodedToken;
+  const user = await User.findOne({ where: { id } });
+  return user;
 }
 
 export async function addToRoleInUser(
-  authorization: string | undefined,
+  authorization: string,
 ): Promise<"admin" | "user"> {
-  if (typeof authorization === "string") {
-    const user = await foundUserByToken(authorization);
-    return user?.role === "admin" ? "admin" : "user";
-  }
-  return "user";
+  const user = await foundUserByToken(authorization);
+  return user?.role === "admin" ? "admin" : "user";
 }
 
 export function IDBodyNotUserID(
   res: Response,
   id: string,
-  user_id: string | undefined,
+  user_id: string,
 ): boolean {
   if (id !== user_id) {
-    const response: IResponse = {
+    res.status(400).json({
       msg: "Algo deu errado!",
       error: true,
       data: {},
-    };
-    res.status(400).json(response);
+    });
     return true;
   }
   return false;

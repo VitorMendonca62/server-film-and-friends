@@ -1,33 +1,27 @@
+// Tudo OK
+
 // Libraries
-import * as Yup from "yup";
 import bcrypt from "bcryptjs";
 import { v4 } from "uuid";
 
 // Models
 import User from "../../database/models/User.model";
 
-// Types 
+// Types
 import { Response, Request } from "express";
 
-
 // Utils
-import { errorInServer, notFound } from "../../utils/general";
-import {
-IDBodyNotUserID,
-foundUserByToken,
-verifySchema,
-} from "../../utils/user";
-import { textsInputsErrors } from "../../utils/texts";
+import { errorInServer, notFound, verifySchema } from "../../utils/general";
+import { IDBodyNotUserID, foundUserByToken } from "../../utils/user";
 
 // Services
 import sendMail from "../../services/mail";
-
-interface IUsersAcessCode {
-  [key: string]: string;
-}
-interface IUsersAcess {
-  [key: string]: boolean;
-}
+import {
+  userForgotPasswordSchema,
+  emailTakeCodeAcessSchema,
+  userVerifyCodeSchema,
+  userUpdatePasswordSchema,
+} from "../../utils/schemas/user";
 
 export const usersAcessCode: IUsersAcessCode = {};
 export const usersAcess: IUsersAcess = {};
@@ -35,14 +29,13 @@ export const usersAcess: IUsersAcess = {};
 async function updatePass(res: Response, user: User, newPassword: string) {
   try {
     const newPasswordHash = await bcrypt.hash(newPassword, 10);
-    user.update({ passwordHash: newPasswordHash });
+    user.update({ passwordHash: newPasswordHash, password: newPassword });
 
-    const response: IResponse = {
+    return res.status(200).json({
       error: false,
       msg: "Senha atualizada com sucesso!",
       data: {},
-    };
-    return res.status(200).json(response);
+    });
   } catch (error) {
     return errorInServer(res, error);
   }
@@ -50,11 +43,7 @@ async function updatePass(res: Response, user: User, newPassword: string) {
 
 export default {
   async takeCodeAndSendEmail(req: Request, res: Response) {
-    const emailSchema = Yup.object().shape({
-      email: textsInputsErrors.email.yup
-    });
-
-    if (verifySchema(req.body, res, emailSchema)) return;
+    if (verifySchema(req.body, res, emailTakeCodeAcessSchema)) return;
 
     try {
       const { email } = req.body;
@@ -83,14 +72,7 @@ export default {
   },
 
   async verifyCode(req: Request, res: Response) {
-    const codeSchema = Yup.object().shape({
-      email: textsInputsErrors.email.yup,
-      code: Yup.string()
-        .required("Código é obrigatório")
-        .length(6, "Códido incorreto"),
-    });
-
-    if (verifySchema(req.body, res, codeSchema)) return;
+    if (verifySchema(req.body, res, userVerifyCodeSchema)) return;
 
     try {
       const { code, email } = req.body;
@@ -121,20 +103,10 @@ export default {
   },
 
   async forgotPass(req: Request, res: Response) {
-    const { email, newPassword } = req.body;
-
-    const userSchema = Yup.object().shape({
-      email: Yup.string()
-        .required("Email é obrigatório")
-        .email("Email inválido"),
-      newPassword: Yup.string()
-        .required("Senha nova é obrigatória")
-        .min(8, "A senha nova é curta demais!"),
-    });
-
-    if (verifySchema(req.body, res, userSchema)) return;
+    if (verifySchema(req.body, res, userForgotPasswordSchema)) return;
 
     try {
+      const { email, newPassword } = req.body;
       const user = await User.findOne({ where: { email } });
       if (!user) {
         return notFound(res);
@@ -143,13 +115,13 @@ export default {
       if (usersAcess[email]) {
         updatePass(res, user, newPassword);
         delete usersAcess[email];
-      } else {
-        return res.status(400).json({
-          msg: "Tempo para redefinir a senha expirou, tente novamente!",
-          data: {},
-          error: true,
-        });
+        return;
       }
+      return res.status(400).json({
+        msg: "Tempo para redefinir a senha expirou, tente novamente!",
+        data: {},
+        error: true,
+      });
     } catch (error) {
       return errorInServer(res, error);
     }
@@ -157,29 +129,28 @@ export default {
 
   async updatePassword(req: Request, res: Response) {
     const { id } = req.params;
-    const { password, newPassword } = req.body;
 
-    const userSchema = Yup.object().shape({
-      password: Yup.string()
-        .required("Senha antiga é obrigatória")
-        .min(8, "A senha antiga é curta demais!"),
-      newPassword: Yup.string()
-        .required("Senha nova é obrigatória")
-        .min(8, "A senha nova é curta demais!"),
-    });
-    
+    const userSchema = userUpdatePasswordSchema;
+
     if (verifySchema(req.body, res, userSchema)) return;
 
     try {
-      const user = await foundUserByToken(req.headers.authorization);
-      const user_id = user?.id;
+      const authorization = req.headers.authorization;
+      const user =
+        authorization === undefined
+          ? null
+          : await foundUserByToken(authorization);
 
       if (!user) {
         return notFound(res);
       }
-      if (IDBodyNotUserID(res, id, user_id)) return;
 
-      const passwordIsCorrect = await user.verifyPassword(password);
+      if (IDBodyNotUserID(res, id, user.id)) return;
+
+      const { oldPassword, newPassword } = req.body;
+
+      const passwordIsCorrect = await user.verifyPassword(oldPassword);
+
       if (!passwordIsCorrect) {
         return res.status(400).json({
           msg: "A senha antiga está incorreta!",

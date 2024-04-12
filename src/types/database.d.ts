@@ -1,10 +1,10 @@
 interface IConfigDatabase {
-  dialect?: Dialect | undefined;
-  host?: string | undefined;
-  username?: string | undefined;
-  password?: string | undefined;
-  database?: string | undefined;
-  port?: number | undefined;
+  dialect?: Dialect;
+  host?: string;
+  username?: string;
+  password?: string;
+  database?: string;
+  port?: number;
 }
 
 type TypeModel = Movie | Serie

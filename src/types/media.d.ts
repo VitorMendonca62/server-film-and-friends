@@ -1,22 +1,49 @@
-interface IMedia {
-  title: string;
-  releaseDate: string;
-  backgroundPath: string | undefined; 
-  genres: string | string[];
-  description: string;
+interface IMediaBasic {
+  id: string;
   urlTrailer: string | undefined;
-  posterPath: string;
+  genres: string | string[];
   idAPI: string;
   rating: number;
-  id: string;
 }
 
+interface IMedia extends IMediaBasic {
+  title: string;
+  releaseDate: string;
+  backgroundPath: string | undefined;
+  description: string;
+  posterPath: string;
+}
+interface ISeasonTMDB {
+  episode_count: number;
+  season_number: number;
+}
+
+interface IMovie extends IMedia {
+  duration: number;
+}
+
+interface ISerie extends IMedia {
+  seasons: string;
+}
+
+interface IDataTakeAPI<T> {
+  [key: string]: T;
+}
+
+type DataReturn = IMediaBasic | ISerie | IMovie;
+
+type path = string;
+type IDataOutput = Movie | Serie | null & path;
+
+
+type TypeObjectSeasons = {
+  seasons: string[];
+};
 interface IGenreTMDB {
   id: number;
   name: string;
 }
-
-interface IGenreiMDB {
+interface IGenreIMDB {
   type: "__typename";
   genre: {
     text: string;
@@ -24,40 +51,21 @@ interface IGenreiMDB {
   };
 }
 
-interface ISeasonTMDB {
-  episode_count: number;
-  season_number: number;
-}
+type ObjectIndexMedias = { movies: Movie[]; series: Serie[] };
 
-interface IMovieSchema extends IMedia {
-  duration: number;
-}
-
-interface ISerieSchema extends IMedia {
-  seasons: string;
-}
+type DataShowMedia = Movie | Serie | null;
 
 type TypeMedia = "movie" | "tv";
 
-interface IDataObject {
-  id: string;
-  genres: IGenreTMDB[];
-  title: string;
-  name: string;
-  first_air_date: string;
-  release_date: string;
-  backdrop_path: string;
-  overview: string;
-  urlTrailer: string | undefined;
-  poster_path: string;
-  seasons: ISeasonTMDB[];
-  runtime: number;
-}
 
-type TypeObjectSeasons = {
-  seasons: { seasonNumber: number; episodeCount: number }[];
-};
+type TypeAPIName = "imdb" | "tmdb";
 
-type ObjectIndexMedias = { movies: Movie[]; series: Serie[] };
-
-type DataShowMedia = Movie | Serie | null
+type KeysPatten =
+  | title
+  | release_date
+  | runtime
+  | backdrop_path
+  | poster_path
+  | overview
+  | name
+  | first_air_date;

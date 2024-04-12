@@ -1,18 +1,14 @@
-type ObjectKeyMsg = {
-  required: string;
-  max: string;
-  min: string;
-  email: string;
-  yup: Yup.StringSchema<string>;
-};
 
 type Method = "get" | "post" | "delete" | "patch";
-type Key = "name" | "username" | "email" | "password";
-type KeyMsg = "required" | "yup" | "min" | "max" | "email";
+type KeysUser =
+  | "name"
+  | "username"
+  | "email"
+  | "password"
+  | "oldPassword"
+  | "newPassword"
+  | "code"
 
-interface IData {
-  name?: string | undefined;
-  username?: string | undefined;
-  password?: string | undefined;
-  email?: string | undefined;
-}
+type KeysMedia = "id" | "APIName" | "type";
+
+type KeysMsg =  "min" | "max" | "email" | "length";

@@ -1,6 +1,6 @@
 import { Response } from "express";
 
-import takeHTMLEmail from "../../pages/email";
+import takeHTMLEmail from "../pages/email";
 import transporterEmail from "../config/mail";
 
 export default function sendMail(
