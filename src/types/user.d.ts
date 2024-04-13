@@ -39,3 +39,11 @@ type NameAndUsername = {
 interface JwtPayload {
   id: string;
 }
+
+interface IUserMediaInfo {
+  id: string;
+  userId: string;
+  mediaId: string;
+  rating?: number;
+  favorite?: boolean;
+}

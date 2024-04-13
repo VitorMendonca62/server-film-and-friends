@@ -9,14 +9,16 @@ import {
   UpdatedAt,
   PrimaryKey,
   AllowNull,
+  HasMany,
 } from "sequelize-typescript";
+import UsersMediaInfo from "./UserMediaInfo.model";
 
 config();
 
 @Table({ timestamps: true, tableName: "series", modelName: "Serie" })
 class Serie extends Model<ISerie> {
   @PrimaryKey
-  @Column(DataType.STRING)
+  @Column(DataType.UUID)
   declare id: string;
 
   @AllowNull(false)
@@ -50,6 +52,10 @@ class Serie extends Model<ISerie> {
   @AllowNull(false)
   @Column(DataType.INTEGER)
   declare raters: number;
+  
+  @AllowNull(false)
+  @Column(DataType.INTEGER)
+  declare favorites: number;
 
   @Column(DataType.STRING)
   declare urlTrailer: string;
@@ -59,6 +65,9 @@ class Serie extends Model<ISerie> {
 
   @UpdatedAt
   declare updatedAt: Date;
+
+  @HasMany(() => UsersMediaInfo)
+  declare UsersMediaInfo: UsersMediaInfo[];
 }
 
 export default Serie;

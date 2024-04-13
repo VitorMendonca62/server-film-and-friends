@@ -4,9 +4,9 @@ import express from "express";
 // Middlewares
 // import auth from "./app/middlewares/auth.js";
 
-
 import routesUsers from "./routes/users";
 import routesMedias from "./routes/media";
+import routesInfos from "./routes/infos";
 
 const routes = express.Router();
 
@@ -14,5 +14,6 @@ const routes = express.Router();
 
 routes.use("/users", routesUsers);
 routes.use("/medias", routesMedias);
+routes.use("/infos", routesInfos);
 
 export default routes;

@@ -85,6 +85,7 @@ export function formatDataTMDB<T>(
   dataReturn.urlTrailer = urlTrailer;
   dataReturn.genres = genres;
   dataReturn.rating = 0;
+  dataReturn.favorites = 0;
   dataReturn.raters = 0;
 
   const keysPattern = Object.keys(patternObject[type]);

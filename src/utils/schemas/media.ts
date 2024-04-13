@@ -10,13 +10,11 @@ const textsMediaSchemaerrors = {
   posterPath: {},
   seasons: { min: "Está faltando as temporadas" },
   duration: { min: "Está faltando a duração" },
-  id: { min: "Não conseguimos encontrar" },
+  id: "Não conseguimos encontrar" ,
   type: {
-    min: "Não conseguimos encontrar",
     oneOf: "Não conseguimos encontrar",
   },
   APIName: {
-    min: "Não conseguimos encontrar",
     oneOf: "Não conseguimos encontrar",
   },
 };
@@ -30,17 +28,15 @@ const basicMediaSchemaObject = {
 };
 
 const mediaInputSchema = {
-  id: z.string().min(1, textsMediaSchemaerrors.id.min),
+  id: z.string().min(1, textsMediaSchemaerrors.id),
   type: z
     .string()
-    .min(1, textsMediaSchemaerrors.type.min)
     .refine(
       (value) => ["movie", "tv"].includes(value),
       textsMediaSchemaerrors.type.oneOf,
     ),
   APIName: z
     .string()
-    .min(1, textsMediaSchemaerrors.APIName.min)
     .refine(
       (value) => ["imdb", "tmdb"].includes(value),
       textsMediaSchemaerrors.APIName.oneOf,
@@ -51,7 +47,6 @@ const schemasMediaObject = {
     ...basicMediaSchemaObject,
     seasons: z
       .array(z.object({ seasonNumber: z.number(), episodeCount: z.number() }))
-      .min(1, textsMediaSchemaerrors.seasons.min),
   },
   movie: {
     ...basicMediaSchemaObject,
