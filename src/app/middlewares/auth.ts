@@ -2,7 +2,7 @@
 import jwt from "jsonwebtoken";
 
 // Config
-import authConfig from "../../config/auth.js";
+import authConfig from "../../config/auth";
 import { Request, Response, NextFunction } from "express";
 
 export default (req: Request, res: Response, next: NextFunction) => {

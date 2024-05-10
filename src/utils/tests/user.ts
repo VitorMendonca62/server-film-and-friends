@@ -33,7 +33,6 @@ export async function fetchLoginData(user: IUserBasicInputcSchema) {
     .post("/users/auth/login")
     .send({ email: user.email, password: user.password });
 
-  console.log()
   const token = loginResponse.body.token as string;
   const decodedToken = jwtDecode(token) as JwtPayload;
   const { id } = decodedToken;
