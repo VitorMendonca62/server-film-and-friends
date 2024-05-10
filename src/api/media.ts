@@ -11,7 +11,7 @@ import {
 
 import { v4 } from "uuid";
 import { verifySchema } from "../utils/general";
-import { mediasSchemas } from "../utils/schemas/media";
+import { mediasSchemas } from "../schemas/media";
 config();
 
 const API_KEY = process.env.API_KEY_TMDB;
@@ -43,7 +43,7 @@ async function takeWithIMDB(id: string, type: TypeMedia) {
   if (jsonMediaIMDB.error) {
     return [{ error: true, msg: "Midia não encontrada", data: {} }, null];
   }
-  
+
   const props = jsonMediaIMDB.props.pageProps;
   const infoMedia = props.aboveTheFoldData;
 
@@ -52,7 +52,7 @@ async function takeWithIMDB(id: string, type: TypeMedia) {
   // release_date
   const { day, month, year } = infoMedia.releaseDate;
   const releaseDate: string = `${year}-${month}-${day}`;
-  
+
   // genres
   const { genres } = infoMedia.titleGenres;
   const nameGenres: string[] = genres.map(
@@ -61,22 +61,22 @@ async function takeWithIMDB(id: string, type: TypeMedia) {
 
   // description
   const description: string = infoMedia.plot.plotText.plainText;
-  
+
   // trailer
   const { primaryVideos } = infoMedia;
   let urlTrailer: string | undefined;
-  
+
   if (primaryVideos.edges[0]) {
     urlTrailer = primaryVideos.edges[0].node.playbackURLs[0].url;
   }
 
   // poster and background
   const posterPath: string = infoMedia.primaryImage.url;
-  
+
   const background_edges = props.mainColumnData.titleMainImages.edges;
-  
+
   let backgroundPath: string | undefined;
-  
+
   for (const edge of background_edges) {
     if (edge.__typename == "ImageEdge") {
       backgroundPath = edge.node.url;
@@ -85,7 +85,7 @@ async function takeWithIMDB(id: string, type: TypeMedia) {
       backgroundPath = undefined;
     }
   }
-  
+
   if (type == "tv" || type == "movie") {
     const data = {
       id: v4(),
@@ -100,9 +100,9 @@ async function takeWithIMDB(id: string, type: TypeMedia) {
       backgroundPath,
       rating: 0,
       raters: 0,
-      favorites: 0
+      favorites: 0,
     };
-    
+
     let dataReturn;
 
     if (type == "movie") {
@@ -117,7 +117,7 @@ async function takeWithIMDB(id: string, type: TypeMedia) {
       );
       dataReturn = { ...data, seasons };
     }
-    
+
     return [
       {
         error: false,
@@ -151,7 +151,6 @@ async function takeWithTMDB<T>(
 
     const responseTrailer = await fetch(urlTrailer, options);
     const dataTrailer = await responseTrailer.json();
-    // console.log(dataTrailer);
     if (dataTrailer.results?.length > 0) {
       const keyTrailer = dataTrailer.results[0].key;
       return keyTrailer;
@@ -159,18 +158,16 @@ async function takeWithTMDB<T>(
     return null;
   }
   const keyTrailer = await takeTrailer(languagePtBr);
-  console.log(keyTrailer)
   let trailer: string | undefined =
-  `https://www.youtube.com/watch?v=${keyTrailer === null ? await takeTrailer(languageEsUS) : keyTrailer}`;
+    `https://www.youtube.com/watch?v=${keyTrailer === null ? await takeTrailer(languageEsUS) : keyTrailer}`;
 
-  console.log(trailer)
   if (trailer.endsWith("null")) {
     trailer = undefined;
   }
-  
+
   const genresArray = data.genres as IGenreTMDB[];
   const genres = genresArray.map((genre: IGenreTMDB) => genre.name);
-  
+
   if (type == "tv" || type == "movie") {
     const dataReturn = formatDataTMDB(data, type, trailer, id, genres);
 

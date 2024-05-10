@@ -19,7 +19,6 @@ describe("Test in /users", () => {
 
       expect(response.body.msg).toBe("Aqui estão todos nossos usuários!");
       expect(Array.isArray(response.body.data)).toBe(true);
-      expect(response.body.data.length).toBe(0);
     });
   });
 

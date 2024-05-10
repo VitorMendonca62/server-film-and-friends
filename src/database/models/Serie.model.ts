@@ -38,7 +38,7 @@ class Serie extends Model<ISerie> {
   declare genres: string[];
 
   @AllowNull(false)
-  @Column(DataType.JSON) // auemntar aqui
+  @Column(DataType.JSON)
   declare seasons: TypeObjectSeasons[];
 
   @AllowNull(false)

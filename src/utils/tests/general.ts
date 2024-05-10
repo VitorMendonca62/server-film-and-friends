@@ -3,7 +3,7 @@
 import { connection } from '../../database';
 
 export async function deleteAllData(
-  table: "users" | "movies" | "series",
+  table: "users" | "movies" | "series" | "users_media_info",
   key: string,
   values: string[],
 ) {

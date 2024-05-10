@@ -80,6 +80,8 @@ export function formatDataTMDB<T>(
 ) {
   const dataReturn = Object();
 
+  console.log(data)
+
   dataReturn.id = v4();
   dataReturn.idAPI = idAPI;
   dataReturn.urlTrailer = urlTrailer;

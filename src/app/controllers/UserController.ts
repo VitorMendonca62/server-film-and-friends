@@ -24,7 +24,7 @@ import { verifySchema } from "../../utils/general";
 import {
   userPostSchema,
   userUpdateNameOrUsername,
-} from "../../utils/schemas/user";
+} from "../../schemas/user";
 
 export default {
   async index(req: Request, res: Response) {

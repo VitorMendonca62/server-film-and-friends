@@ -2,7 +2,6 @@
 import express from "express";
 
 // Middlewares
-// import auth from "./app/middlewares/auth.js";
 
 import routesUsers from "./routes/users";
 import routesMedias from "./routes/media";

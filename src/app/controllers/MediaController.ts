@@ -14,7 +14,7 @@ import fetchAPIMedia from "../../api/media";
 import {
   basicMediaShowInputSchema,
   basicMediaStoreInputSchema,
-} from "../../utils/schemas/media";
+} from "../../schemas/media";
 
 export default {
   async index(req: Request, res: Response) {

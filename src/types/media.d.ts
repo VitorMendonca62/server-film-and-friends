@@ -13,6 +13,12 @@ interface IMedia extends IMediaBasic {
   description: string;
   posterPath: string;
 }
+
+interface IMediaInput {
+  id: string;
+  APIName: TypeAPIName;
+  type: TypeMedia;
+}
 interface ISeasonTMDB {
   episode_count: number;
   season_number: number;
@@ -33,8 +39,7 @@ interface IDataTakeAPI<T> {
 type DataReturn = IMediaBasic | ISerie | IMovie;
 
 type path = string;
-type IDataOutput = Movie | Serie | null & path;
-
+type IDataOutput = Movie | Serie | (null & path);
 
 type TypeObjectSeasons = {
   seasons: string[];
@@ -56,7 +61,6 @@ type ObjectIndexMedias = { movies: Movie[]; series: Serie[] };
 type DataShowMedia = Movie | Serie | null;
 
 type TypeMedia = "movie" | "tv";
-
 
 type TypeAPIName = "imdb" | "tmdb";
 

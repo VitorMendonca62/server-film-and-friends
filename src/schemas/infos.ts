@@ -14,7 +14,7 @@ const infosSchemaObject = {
   type: z
     .string()
     .refine(
-      (value) => ["user", "media"].includes(value),
+      (value) => ["favorite", "rating"].includes(value),
       textsInfosSchemaErrors.type,
     ),
   rating: z
@@ -35,10 +35,12 @@ export const infosSchema = {
     userId: infosSchemaObject.userId,
     mediaId: infosSchemaObject.mediaId,
     favorite: infosSchemaObject.favorite,
+    type: infosSchemaObject.type,
   }),
   rating: z.object({
     userId: infosSchemaObject.userId,
     mediaId: infosSchemaObject.mediaId,
     rating: infosSchemaObject.rating,
+    type: infosSchemaObject.type,
   }),
 };

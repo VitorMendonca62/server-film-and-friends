@@ -21,7 +21,7 @@ import {
   emailTakeCodeAcessSchema,
   userVerifyCodeSchema,
   userUpdatePasswordSchema,
-} from "../../utils/schemas/user";
+} from "../../schemas/user";
 
 export const usersAcessCode: IUsersAcessCode = {};
 export const usersAcess: IUsersAcess = {};

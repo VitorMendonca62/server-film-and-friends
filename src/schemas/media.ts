@@ -22,7 +22,6 @@ const textsMediaSchemaerrors = {
 const basicMediaSchemaObject = {
   title: z.string().min(2, textsMediaSchemaerrors.title.min),
   releaseDate: z.string().length(10, textsMediaSchemaerrors.releaseDate.length),
-  backgroundPath: z.string().min(1, textsMediaSchemaerrors.backgroundPath.min),
   genres: z.array(z.string()).min(1, textsMediaSchemaerrors.genres.min),
   description: z.string().min(1, textsMediaSchemaerrors.description.min),
 };

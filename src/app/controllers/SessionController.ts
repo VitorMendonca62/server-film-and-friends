@@ -14,7 +14,7 @@ import { errorInServer, notFound, verifySchema } from "../../utils/general";
 
 // Config
 import authConfig from "../../config/auth";
-import { userLoginSchema } from "../../utils/schemas/user";
+import { userLoginSchema } from "../../schemas/user";
 
 export default {
   async store(req: Request, res: Response) {
