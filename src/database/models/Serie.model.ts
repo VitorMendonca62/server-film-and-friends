@@ -34,6 +34,14 @@ class Serie extends Model<ISerie> {
   declare releaseDate: string;
 
   @AllowNull(false)
+  @Column(DataType.STRING)
+  declare posterPath: string;
+
+  @AllowNull(false)
+  @Column(DataType.STRING)
+  declare backgroundPath: string;
+
+  @AllowNull(false)
   @Column(DataType.JSON)
   declare genres: string[];
 

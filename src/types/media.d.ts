@@ -1,36 +1,36 @@
-interface IMediaBasic {
-  id: string;
-  urlTrailer: string | undefined;
-  genres: string | string[];
-  idAPI: string;
-  rating: number;
-}
+  interface IMediaBasic {
+    id: string;
+    urlTrailer: string | undefined;
+    genres: string | string[];
+    idAPI: string;
+    rating: number;
+  }
 
-interface IMedia extends IMediaBasic {
-  title: string;
-  releaseDate: string;
-  backgroundPath: string | undefined;
-  description: string;
-  posterPath: string;
-}
+  interface IMedia extends IMediaBasic {
+    title: string;
+    releaseDate: string;
+    backgroundPath: string | undefined;
+    description: string;
+    posterPath?: string | undefined;
+  }
 
-interface IMediaInput {
-  id: string;
-  APIName: TypeAPIName;
-  type: TypeMedia;
-}
-interface ISeasonTMDB {
-  episode_count: number;
-  season_number: number;
-}
+  interface IMediaInput {
+    id: string;
+    APIName: TypeAPIName;
+    type: TypeMedia;
+  }
+  interface ISeasonTMDB {
+    episode_count: number;
+    season_number: number;
+  }
 
-interface IMovie extends IMedia {
-  duration: number;
-}
+  interface IMovie extends IMedia {
+    duration: number;
+  }
 
-interface ISerie extends IMedia {
-  seasons: string;
-}
+  interface ISerie extends IMedia {
+    seasons: string;
+  }
 
 interface IDataTakeAPI<T> {
   [key: string]: T;

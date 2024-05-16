@@ -80,7 +80,6 @@ export function formatDataTMDB<T>(
 ) {
   const dataReturn = Object();
 
-
   dataReturn.id = v4();
   dataReturn.idAPI = idAPI;
   dataReturn.urlTrailer = urlTrailer;
@@ -96,7 +95,15 @@ export function formatDataTMDB<T>(
 
   for (const key of keysPattern as KeysPattern[]) {
     if (key in data) {
-      dataReturn[pattern[key]] = data[key];
+      if (key == "poster_path") {
+        dataReturn[pattern[key]] =
+          `https://image.tmdb.org/t/p/w300_and_h450_bestv2${data[key]}`;
+      } else if (key === "backdrop_path") {
+        dataReturn[pattern[key]] =
+          `https://media.themoviedb.org/t/p/w1920_and_h800_multi_faces/${data[key]}`;
+      } else {
+        dataReturn[pattern[key]] = data[key];
+      }
     }
   }
 

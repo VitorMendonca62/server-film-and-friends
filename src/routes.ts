@@ -9,8 +9,7 @@ import routesInfos from "./routes/infos";
 
 const routes = express.Router();
 
-// Routes:
-
+// Routes:  
 routes.use("/users", routesUsers);
 routes.use("/medias", routesMedias);
 routes.use("/infos", routesInfos);

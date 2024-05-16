@@ -34,6 +34,14 @@ class Movie extends Model<IMovie> {
   declare releaseDate: string;
 
   @AllowNull(false)
+  @Column(DataType.STRING)
+  declare posterPath: string;
+
+  @AllowNull(false)
+  @Column(DataType.STRING)
+  declare backgroundPath: string;
+
+  @AllowNull(false)
   @Column(DataType.JSON)
   declare genres: string[];
 

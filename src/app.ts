@@ -16,16 +16,15 @@ const app = express();
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// Routes
-app.use(routes);
+
 
 // CORS
 const corsOptions = {
-  origin: process.env.CLIENT_HOST,
-  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  origin: "http://localhost:5173",
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   credentials: true,
   optionsSuccessStatus: 204,
-  allowedHeaders: "Content-Type,Authorization",
+  allowedHeaders: 'Content-Type,Authorization',
 };
 app.use(cors(corsOptions));
 
@@ -36,4 +35,6 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
+// Routes
+app.use(routes);
 export default app;

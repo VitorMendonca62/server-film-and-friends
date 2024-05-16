@@ -19,18 +19,25 @@ import {
 export default {
   async index(req: Request, res: Response) {
     try {
-      const medias: ObjectIndexMedias = { movies: [], series: [] };
+      const page = Number(req.params.page);
+      const type = req.params.type;
 
-      const movies = await Movie.findAll();
-      const series = await Serie.findAll();
+      const medias =
+        type === "movie"
+          ? await Movie.findAll()
+          : type === "serie"
+            ? await Serie.findAll()
+            : [];
+      const data: (Serie | Movie)[] = [];
 
-      medias.movies = movies;
-      medias.series = series;
+      for (let i = 12 * (page - 1); i < 12 * page; i++) {
+        if (medias.length > i) data.push(medias[i]);
+      }
 
       return res.status(200).json({
         msg: "Aqui estão todos nossos filmes e séries!",
         error: false,
-        data: medias,
+        data,
       });
     } catch (err) {
       return errorInServer(res, err);

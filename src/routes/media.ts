@@ -4,7 +4,7 @@ import MediaController from "../app/controllers/MediaController";
 
 const routes = express.Router();
 
-routes.get("/", MediaController.index);
+routes.get("/:type/:page", MediaController.index);
 routes.post("/", MediaController.store);
 routes.get("/find", MediaController.show);
 
