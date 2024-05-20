@@ -145,7 +145,7 @@ async function takeWithTMDB<T>(
   data: IDataTakeAPI<T>,
 ) {
   // trailer
-  async function takeTrailer(language: string) {
+  const takeTrailer = async (language: string) => {
     const urlTrailer = `${host}/${type}/${idTMDB || id}/videos?language=${language}`;
     options.headers["accept-language"] = language;
 
@@ -156,10 +156,11 @@ async function takeWithTMDB<T>(
       return keyTrailer;
     }
     return null;
-  }
+  };
+  
   const keyTrailer = await takeTrailer(languagePtBr);
   let trailer: string | undefined =
-    `https://www.youtube.com/watch?v=${keyTrailer === null ? await takeTrailer(languageEsUS) : keyTrailer}`;
+    `https://www.youtube.com/embed/${keyTrailer === null ? await takeTrailer(languageEsUS) : keyTrailer}`;
 
   if (trailer.endsWith("null")) {
     trailer = undefined;
