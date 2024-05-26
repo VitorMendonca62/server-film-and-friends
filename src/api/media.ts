@@ -29,7 +29,7 @@ const options = {
   },
 };
 
-async function takeWithIMDB(id: string, type: TypeMedia) {
+async function takeWithIMDB(id: string, type: TypeMedia, idMedia: string) {
   // Sim, isso é uma gambiarra enorme. Mas é pra ter mais dados caso seja do IMDB
   // E não tenha do TMDB, é apenas em ultimos casos.
   // Isso aqui deve ser o apice de ineficiencia, mas é o que temos para hoeje <(
@@ -121,7 +121,7 @@ async function takeWithIMDB(id: string, type: TypeMedia) {
     return [
       {
         error: false,
-        data: dataReturn,
+        data: { id: idMedia },
         msg: "Obra encontada com sucesso no IMDB",
       },
       dataReturn,
@@ -143,6 +143,7 @@ async function takeWithTMDB<T>(
   idTMDB: string | undefined,
   type: TypeMedia,
   data: IDataTakeAPI<T>,
+  idMedia: string,
 ) {
   // trailer
   const takeTrailer = async (language: string) => {
@@ -157,7 +158,7 @@ async function takeWithTMDB<T>(
     }
     return null;
   };
-  
+
   const keyTrailer = await takeTrailer(languagePtBr);
   let trailer: string | undefined =
     `https://www.youtube.com/embed/${keyTrailer === null ? await takeTrailer(languageEsUS) : keyTrailer}`;
@@ -178,7 +179,7 @@ async function takeWithTMDB<T>(
       {
         error: false,
         msg: "Obra encontado com sucesso no TMDB",
-        data: dataReturn,
+        data: { id: idMedia },
       },
       dataReturn,
     ];
@@ -198,6 +199,7 @@ export default async function fetchAPIMedia(
   APIName: string,
   id: string,
   type: TypeMedia,
+  idMedia: string,
 ) {
   let idTMDB;
 
@@ -226,11 +228,11 @@ export default async function fetchAPIMedia(
   const data = await responseAPI.json();
 
   if (data.id) {
-    const response = await takeWithTMDB(res, id, idTMDB, type, data);
+    const response = await takeWithTMDB(res, id, idTMDB, type, data, idMedia);
     return response;
   }
   if (APIName === "imdb") {
-    const response = await takeWithIMDB(id, type);
+    const response = await takeWithIMDB(id, type, idMedia);
     return response;
   }
 

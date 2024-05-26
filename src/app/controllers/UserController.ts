@@ -26,6 +26,8 @@ import {
   userUpdateNameOrUsername,
 } from "../../schemas/user";
 
+
+
 export default {
   async index(req: Request, res: Response) {
     try {
@@ -62,7 +64,6 @@ export default {
       return res.status(200).json({
         msg: "Usuário encontrado com sucesso!",
         data: {
-          name: user.name,
           username: user.username,
         },
         error: false,

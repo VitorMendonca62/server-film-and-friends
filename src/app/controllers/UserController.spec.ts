@@ -1,6 +1,6 @@
 // TUDO OK
 
-import app from "../../app";
+import {app} from "../../app";
 import request from "supertest";
 
 import { verifyTokenAndID, fetchLoginData } from "../../utils/tests/user";

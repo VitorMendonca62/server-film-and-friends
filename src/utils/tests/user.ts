@@ -5,7 +5,7 @@ import { jwtDecode } from "jwt-decode";
 // Utils
 
 // Components
-import app from "../../app";
+import {app} from "../../app";
 
 export async function verifyTokenAndID(
   method: Method,

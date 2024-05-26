@@ -2,7 +2,6 @@ import express from "express";
 import UserController from "../app/controllers/UserController";
 import SessionController from "../app/controllers/SessionController";
 import PasswordController from "../app/controllers/PasswordController";
-import auth from "../app/middlewares/auth";
 
 const routes = express.Router();
 
@@ -13,7 +12,7 @@ routes.post("/password/email", PasswordController.takeCodeAndSendEmail);
 routes.post("/password/code", PasswordController.verifyCode);
 routes.patch("/password/update", PasswordController.forgotPass);
 
-routes.use(auth)
+// routes.use(auth)
 routes.get("/", UserController.index);
 routes.get("/find", UserController.show);
 

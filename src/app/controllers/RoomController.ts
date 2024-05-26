@@ -5,17 +5,8 @@ import fetchAPIMedia from "../../api/media";
 import Movie from "../../database/models/Movie.model";
 import Serie from "../../database/models/Serie.model";
 import { v4 } from "uuid";
-
-interface IRoom {
-  id: string;
-  idAPI: string;
-  author: string;
-  participants: IUser[];
-  path: string;
-  type: TypeMedia;
-}
-
-const rooms: IRoom[] = [];
+import { foundUserByToken } from "../../utils/user";
+import { rooms } from "../../app";
 
 export default {
   async index(req: Request, res: Response) {
@@ -23,7 +14,7 @@ export default {
       const page = Number(req.params.page);
       const type = req.params.type;
 
-      const data: ([Serie | Movie, IRoom])[] = [];
+      const data: [Serie | Movie, IRoom][] = [];
       if (type == "tv" || type == "movie") {
         const roomFilteredType = rooms.filter((room) => room.type === type);
         for (let i = 12 * (page - 1); i < 12 * page; i++) {
@@ -71,18 +62,30 @@ export default {
         }
 
         const path = `https://embedder.net/e/${type === "tv" ? "series" : "movie"}?${APIName}=${id}&${type === "tv" ? episode : ""}`;
+        const idMedia = v4();
+        const authorization = req.headers.authorization as string;
+
+        const user = await foundUserByToken(authorization);
+        const username = user?.username as string;
+
+        if (!user)
+          return res.status(400).json({
+            error: true,
+            msg: "Algo deu errado",
+            data: {},
+          });
 
         rooms.push({
-          id: v4(),
+          id: idMedia,
           idAPI: id,
-          author: "awdwad",
+          author: username,
           participants: [],
           path,
           type,
         });
 
         if (!data) {
-          const returned = await fetchAPIMedia(res, APIName, id, type);
+          const returned = await fetchAPIMedia(res, APIName, id, type, idMedia);
 
           // Erro de validacao de input
           if (!returned[0]) {
@@ -95,10 +98,11 @@ export default {
 
             await model.create(dataReturn);
           }
-          // Midia nao encontrada, algo deu errado
+          // Midia nao encontrada, algo deu errad
+
           return res.status(returned[0].error ? 404 : 200).json({
             error: returned[0].error,
-            data: {},
+            data: { id: returned[0].data.id },
             msg: returned[0].msg,
           });
         }
@@ -107,7 +111,7 @@ export default {
         return res.status(200).json({
           error: false,
           msg: "Obra encontado com sucesso no DB",
-          data: {},
+          data: { id: idMedia },
         });
       };
 
@@ -116,6 +120,28 @@ export default {
         : await fluxOfData(Serie);
     } catch (err) {
       return errorInServer(res, err);
+    }
+  },
+  async show(req: Request, res: Response) {
+    try {
+      const id = req.params.id;
+      const data = rooms.find((room) => room.id === id);
+
+      if (!data) {
+        return res.status(404).json({
+          msg: "Sala não encontrada",
+          data: null,
+          error: true,
+        });
+      }
+
+      return res.status(200).json({
+        msg: "Sala encontrada",
+        data,
+        error: false,
+      });
+    } catch (error) {
+      errorInServer(res, error);
     }
   },
 };
