@@ -9,18 +9,23 @@ import { Server } from "socket.io";
 // Components
 import routes from "./routes";
 import { startDatabase } from "./database/index";
+
+// Models
 import User from "./database/models/User.model";
 
 startDatabase();
 
-// Init express
+// call express
 const app = express();
 
 // Accept JSONs
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
+// create socket server
 const server = createServer(app);
+
+// create socket for server
 const io = new Server(server, {
   cors: {
     origin: "*",
@@ -33,7 +38,6 @@ const corsOptions = {
   origin: "http://localhost:5173",
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
   credentials: true,
-  optionsSuccessStatus: 204,
   allowedHeaders: "Content-Type,Authorization",
 };
 app.use(cors(corsOptions));
@@ -60,10 +64,11 @@ io.on("connection", (socket) => {
 
       if (!user) return;
 
-      const isInRoom = room.participants.find((participant) => participant.id === user.id)
-      console.log(isInRoom)
-      if (isInRoom)
-        return;
+      const isInRoom = room.participants.find(
+        (participant) => participant?.id === user.id,
+      );
+
+      if (isInRoom) return;
 
       const { id: userId, username, role } = user;
       room.participants.push({ id: userId, username, role });
@@ -74,21 +79,16 @@ io.on("connection", (socket) => {
     io.emit("receivedMessage", data);
   });
 
-  socket.on("exitRoom", (id: string, _username: string) => {
-    console.log("EU")
+  socket.on("_disconnect", (id: string, _username: string) => {
     const room = rooms.find((room) => room.id === id);
-    console.log(room)
 
     if (room) {
       const user = room.participants.find(
-        (participant) => participant.username === _username,
+        (participant) => participant?.username === _username,
       );
-      console.log(user)
-      // console.log(room.participants.indexOf(user))
       if (!user) return;
 
-      delete room.participants[room.participants.indexOf(user)] 
-      // .slice();
+      delete room.participants[room.participants.indexOf(user)];
     }
   });
 });

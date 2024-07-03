@@ -10,8 +10,10 @@ interface IUserBasicInputcSchema {
   email: string;
   password: string;
 }
+
+type UserRoles = "admin" | "user"
 interface IUser extends IUserBasicOutputcSchema {
-  role: "admin" | "user";
+  role: UserRoles;
   password: string;
   passwordHash: string;
 }

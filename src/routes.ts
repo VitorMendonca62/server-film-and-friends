@@ -1,16 +1,16 @@
-// Modules
+// Libraries
 import express from "express";
 
-// Middlewares
-
+// Import routes
 import routesUsers from "./routes/users";
 import routesMedias from "./routes/media";
 import routesInfos from "./routes/infos";
 import routesRooms from "./routes/rooms";
 
+// Initialize router
 const routes = express.Router();
 
-// Routes:  
+// Routes
 routes.use("/users", routesUsers);
 routes.use("/medias", routesMedias);
 routes.use("/infos", routesInfos);

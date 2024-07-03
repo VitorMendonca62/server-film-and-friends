@@ -7,7 +7,7 @@ interface IRoom {
   id: string;
   idAPI: string;
   author: string;
-  participants: IUserInRoom[];
+  participants: (IUserInRoom | null)[];
   path: string;
   type: TypeMedia;
 }

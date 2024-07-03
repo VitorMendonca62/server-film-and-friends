@@ -12,7 +12,7 @@ services:
     ports:
       - "4660:3306"
     restart: always
-    mem_limit: 1024M
+    mem_limit: 512M
   supertest:
     image: mysql
     container_name: supertest

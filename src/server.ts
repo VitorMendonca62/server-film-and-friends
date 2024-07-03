@@ -11,12 +11,12 @@ config();
 const PORT = process.env.PORT || 4004;
 const HOST = "localhost";
 
-// Server listing
-
+// Socket active
 server.listen(4004, () => {
   console.log(`[RUN] Socket is active!`);
 });
 
+// Server listing in port
 app.listen(PORT, () =>
   console.log(`[RUN] Server listing in http://${HOST}:${PORT}`),
 );

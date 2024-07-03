@@ -77,7 +77,7 @@ export function formatDataTMDB<T>(
   urlTrailer: string | undefined,
   idAPI: string,
   genres: string[],
-) {
+): IMovie | ISerie {
   const dataReturn = Object();
 
   dataReturn.id = v4();
@@ -123,5 +123,5 @@ export function formatDataTMDB<T>(
     dataReturn.seasons = seasons;
   }
 
-  return dataReturn;
+  return (dataReturn as (IMovie | ISerie));
 }

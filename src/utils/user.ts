@@ -1,6 +1,3 @@
-// TUDO OIK
-
-
 // Libraries
 import { jwtDecode } from "jwt-decode";
 
@@ -52,19 +49,18 @@ export async function foundEmail(
   return false;
 }
 
-export async function foundUserByToken(
-  authorization: string,
-): Promise<User | null> {
-  const token = authorization.split(" ")[1];
-  const decodedToken = jwtDecode(token) as JwtPayload;
-  const { id } = decodedToken;
-  const user = await User.findOne({ where: { id } });
-  return user;
-}
+  export async function foundUserByToken(
+    token: string,
+  ): Promise<User | null> {
+    const decodedToken = jwtDecode(token) as JwtPayload;
+    const { id } = decodedToken;
+    const user = await User.findOne({ where: { id } });
+    return user;
+  }
 
 export async function addToRoleInUser(
   authorization: string,
-): Promise<"admin" | "user"> {
+): Promise<UserRoles> {
   const user = await foundUserByToken(authorization);
   return user?.role === "admin" ? "admin" : "user";
 }
